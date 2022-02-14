@@ -48,7 +48,6 @@ def test_balanced_and_sorted_random_trees_of_floats():
 
 
 def test_faster_than_naive():
-
     def make_lbst_tree(values):
         out = sh.make(operator.lt)
         for value in values:
@@ -78,7 +77,9 @@ def test_faster_than_naive():
 
 def test_min():
     for _ in range(MAGIC):
-        values = [random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)]
+        values = [
+            random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)
+        ]
         values = sorted(values)
 
         tree = sh.make(operator.lt)
@@ -90,7 +91,9 @@ def test_min():
 
 def test_max():
     for _ in range(MAGIC):
-        values = [random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)]
+        values = [
+            random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)
+        ]
         values = sorted(values)
 
         tree = sh.make(operator.lt)
@@ -102,7 +105,9 @@ def test_max():
 
 def test_cursor_next():
     for _ in range(MAGIC):
-        values = [random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)]
+        values = [
+            random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)
+        ]
         values = sorted(set(values))
 
         tree = sh.make(operator.lt)
@@ -125,7 +130,9 @@ def test_cursor_next():
 
 def test_cursor_previous():
     for _ in range(MAGIC):
-        values = [random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)]
+        values = [
+            random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)
+        ]
         values = sorted(set(values))
 
         tree = sh.make(operator.lt)

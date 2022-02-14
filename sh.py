@@ -8,9 +8,9 @@ from math import log2
 # ref: https://scholar.google.fr/scholar?cluster=16806430159882137269
 #
 
-LBST = namedtuple('LBST', 'comparator root')
+LBST = namedtuple("LBST", "comparator root")
 
-Node = namedtuple('Node', 'key value size left right')
+Node = namedtuple("Node", "key value size left right")
 
 
 NODE_NULL = Node(None, None, 0, None, None)
@@ -39,7 +39,9 @@ def _node_join(key, value, left, right):
 
 
 def _node_single_left_rotation(key, value, left, right):
-    return _node_join(right.key, right.value, _node_join(key, value, left, right.left), right.right)
+    return _node_join(
+        right.key, right.value, _node_join(key, value, left, right.left), right.right
+    )
 
 
 def _node_double_left_rotation(key, value, left, right):
@@ -47,12 +49,14 @@ def _node_double_left_rotation(key, value, left, right):
         right.left.key,
         right.left.value,
         _node_join(key, value, left, right.left.left),
-        _node_join(right.key, right.value, right.left.right, right.right)
+        _node_join(right.key, right.value, right.left.right, right.right),
     )
 
 
 def _node_single_right_rotation(key, value, left, right):
-    return _node_join(left.key, left.value, left.left, _node_join(key, value, left.right, right))
+    return _node_join(
+        left.key, left.value, left.left, _node_join(key, value, left.right, right)
+    )
 
 
 def _node_double_right_rotation(key, value, left, right):
@@ -60,7 +64,7 @@ def _node_double_right_rotation(key, value, left, right):
         left.right.key,
         left.right.value,
         _node_join(left.key, left.value, left.left, left.right.left),
-        _node_join(key, value, left.right.right, right)
+        _node_join(key, value, left.right.right, right),
     )
 
 
@@ -94,7 +98,7 @@ def _node_set(node, comparator, key, value):
             node.key,
             node.value,
             _node_set(node.left, comparator, key, value),
-            node.right
+            node.right,
         )
 
     if comparator(node.key, key):
@@ -103,7 +107,7 @@ def _node_set(node, comparator, key, value):
             node.key,
             node.value,
             node.left,
-            _node_set(node.right, comparator, key, value)
+            _node_set(node.right, comparator, key, value),
         )
 
     # otherwise, `key` is equal to `node.key`, create a new node with
@@ -179,7 +183,7 @@ def max(lbst):
     return parent.key
 
 
-Cursor = namedtuple('Cursor', 'stack')
+Cursor = namedtuple("Cursor", "stack")
 
 
 def cursor(lbst):
@@ -210,7 +214,6 @@ def cursor_seek(cursor, key):
                 return -1
         else:
             return 0
-
 
 
 def cursor_key(cursor):
