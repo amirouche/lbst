@@ -1,0 +1,33 @@
+name: Continuous Integration
+
+on:
+    push:
+
+jobs:
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - 3.7
+          - 3.8
+          - 3.9
+          - "3.10"
+          - pypy-3.7
+          - pypy-3.8          
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on:  ${{ matrix.os }}
+    name: ${{ matrix.python-version }} on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - run: pip install --quiet poetry
+      - run: poetry install --quiet --no-ansi
+      - run: poetry run pytest --exitfirst --no-header --tb=no --quiet --assert=plain --numprocesses=auto tests.py
