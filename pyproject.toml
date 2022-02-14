@@ -17,6 +17,8 @@ ipython = "^8.0.1"
 pytest-cov = "^3.0.0"
 pytest-randomly = "^3.11.0"
 pytest-xdist = "^2.5.0"
+jedi = "^0.18.1"
+flake8 = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
