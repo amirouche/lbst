@@ -1,0 +1,2 @@
+def mic():
+    return True
