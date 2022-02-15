@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "lbst"
-version = "0.0.0"
+version = "0.0.1"
 description = "Immutable Log-Balanced Search Tree"
 authors = ["Amirouche <amirouche@hyper.dev>"]
 license = "CC0"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.7"
