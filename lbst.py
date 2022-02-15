@@ -123,6 +123,40 @@ def set(lbst, key, value):
     return LBST(lbst.comparator, _node_set(lbst.root, lbst.comparator, key, value))
 
 
+def _node_delete_min(node):
+    assert node is not NODE_NULL
+
+    if node.left is NODE_NULL:
+        return node.right
+
+    return _node_join(node.key, node.value, _node_delete_min(node.left), node.right)
+
+
+def _node_concat2(node, other):
+    if node is NODE_NULL:
+        return other
+
+    if other is NODE_NULL:
+        return node
+
+    min = _node_min(other)
+    return _node_join(min.key, min.value, node, _node_delete_min(other))
+
+
+def _node_delete(node, comparator, key):
+    if comparator(key, node.key):
+        return _node_join(node.key, node.value, _node_delete(node.left, comparator, key), node.right)
+
+    if comparator(node.key, key):
+        return _node_join(node.key, node.value, node.left, _node_delete(node.right, comparator, key))
+
+    return _node_concat2(node.left, node.right)
+
+
+def delete(lbst, key):
+    return LBST(lbst.comparator, _node_delete(lbst.root, lbst.comparator, key))
+
+
 def _node_to_dict(node, out):
     if node.left is not NODE_NULL:
         _node_to_dict(node.left, out)
@@ -151,19 +185,24 @@ def size(lbst):
     return lbst.root.size
 
 
-def min(lbst):
-    # The minimal key is the left-most node
-    if lbst.root.size == 0:
-        raise RuntimeError("The tree is empty!")
-
-    parent = lbst.root
-    node = lbst.root.left
+def _node_min(node):
+    parent = node
+    node = node.left
     while True:
         if node is NODE_NULL:
             break
         parent = node
         node = node.left
-    return parent.key
+    return parent
+
+
+def min(lbst):
+    # The minimal key is the left-most node
+    if lbst.root.size == 0:
+        raise RuntimeError("The tree is empty!")
+
+    node = _node_min(lbst.root)
+    return node.key
 
 
 def max(lbst):

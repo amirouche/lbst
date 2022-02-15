@@ -151,3 +151,30 @@ def test_cursor_previous():
             assert lbst.cursor_key(cursor) == values[index]
 
         assert not lbst.cursor_next(cursor)
+
+
+def test_delete():
+    for _ in range(MAGIC):
+        # given
+        values = [
+            random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)
+        ]
+
+        to_delete = values[0]
+
+        print("to_delete", to_delete)
+
+        values = sorted(set(values))
+
+        tree = lbst.make(operator.lt)
+        for value in values:
+            tree = lbst.set(tree, value, value)
+
+        # when
+        tree = lbst.delete(tree, to_delete)
+
+        # then
+        values.remove(to_delete)
+        values = {x: x for x in values}
+
+        assert lbst.to_dict(tree) == values
