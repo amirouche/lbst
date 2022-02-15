@@ -1,5 +1,5 @@
+import operator
 from collections import namedtuple
-from math import log2
 
 #
 # Balanced binary tree based on Log-Balanced Search Trees (LBST)
@@ -16,7 +16,7 @@ Node = namedtuple("Node", "key value size left right")
 NODE_NULL = Node(None, None, 0, None, None)
 
 
-def make(comparator):
+def make(comparator=operator.lt):
     return LBST(comparator, NODE_NULL)
 
 
@@ -222,20 +222,20 @@ def max(lbst):
     return parent.key
 
 
-Cursor = namedtuple("Cursor", "stack")
+Cursor = namedtuple("Cursor", "comparator stack")
 
 
 def cursor(lbst):
-    return Cursor([lbst.root])
+    return Cursor(lbst.comparator, [lbst.root])
 
 
 def cursor_clone(cursor):
-    return Cursor(list(cursor.stack))
+    return Cursor(cursor.comparator, list(cursor.stack))
 
 
 def cursor_seek(cursor, key):
     while True:
-        if cursor.stack[-1].key > key:
+        if cursor.comparator(key, cursor.stack[-1].key):
             # copy!
             stack = list(cursor.stack)
             if cursor_previous(cursor):
@@ -243,7 +243,7 @@ def cursor_seek(cursor, key):
             else:
                 cursor.stack[:] = stack
                 return 1
-        elif cursor.stack[-1].key < key:
+        elif cursor.comparator(cursor.stack[-1].key, key):
             # copy!
             stack = list(cursor.stack)
             if cursor_next(cursor):
