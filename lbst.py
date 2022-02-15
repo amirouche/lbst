@@ -145,10 +145,14 @@ def _node_concat2(node, other):
 
 def _node_delete(node, comparator, key):
     if comparator(key, node.key):
-        return _node_join(node.key, node.value, _node_delete(node.left, comparator, key), node.right)
+        return _node_join(
+            node.key, node.value, _node_delete(node.left, comparator, key), node.right
+        )
 
     if comparator(node.key, key):
-        return _node_join(node.key, node.value, node.left, _node_delete(node.right, comparator, key))
+        return _node_join(
+            node.key, node.value, node.left, _node_delete(node.right, comparator, key)
+        )
 
     return _node_concat2(node.left, node.right)
 
