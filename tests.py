@@ -47,34 +47,6 @@ def test_balanced_and_sorted_random_trees_of_floats():
         assert out == expected
 
 
-def test_faster_than_naive():
-    def make_lbst_tree(values):
-        out = lbst.make(operator.lt)
-        for value in values:
-            out = lbst.set(out, value, value)
-        return out
-
-    def make_naive(values):
-        out = dict()
-        for value in values:
-            out[value] = value
-            out = sorted(out.items())
-            out = dict(out)
-        return out
-
-    values = [random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)]
-
-    start = time.perf_counter()
-    make_lbst_tree(values)
-    timing_lbst = time.perf_counter() - start
-
-    start = time.perf_counter()
-    make_naive(values)
-    timing_naive = time.perf_counter() - start
-
-    assert timing_lbst < timing_naive
-
-
 def test_min():
     for _ in range(MAGIC):
         values = [
