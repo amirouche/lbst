@@ -8,7 +8,7 @@ from collections import namedtuple
 # ref: https://scholar.google.fr/scholar?cluster=16806430159882137269
 #
 
-LBST = namedtuple("LBST", "comparator root")
+LBST = namedtuple("LBST", "root")
 
 Node = namedtuple("Node", "key value size left right")
 
@@ -16,8 +16,8 @@ Node = namedtuple("Node", "key value size left right")
 NODE_NULL = Node(None, None, 0, None, None)
 
 
-def make(comparator=operator.lt):
-    return LBST(comparator, NODE_NULL)
+def make():
+    return LBST(NODE_NULL)
 
 
 def _is_less(a, b):
@@ -88,26 +88,26 @@ def _node_rebalance(key, value, left, right):
     return Node(key, value, left.size + right.size + 1, left, right)
 
 
-def _node_set(node, comparator, key, value):
+def _node_set(node, key, value):
     if node is NODE_NULL:
         return Node(key, value, 1, NODE_NULL, NODE_NULL)
 
-    if comparator(key, node.key):
+    if key < node.key:
         # The given KEY is less that node.key, recurse left side.
         return _node_rebalance(
             node.key,
             node.value,
-            _node_set(node.left, comparator, key, value),
+            _node_set(node.left, key, value),
             node.right,
         )
 
-    if comparator(node.key, key):
+    if node.key < key:
         # The given KEY is more than node.key, recurse right side.
         return _node_rebalance(
             node.key,
             node.value,
             node.left,
-            _node_set(node.right, comparator, key, value),
+            _node_set(node.right, key, value),
         )
 
     # otherwise, `key` is equal to `node.key`, create a new node with
@@ -118,9 +118,9 @@ def _node_set(node, comparator, key, value):
 
 def set(lbst, key, value):
     if lbst.root is NODE_NULL:
-        return LBST(lbst.comparator, Node(key, value, 1, NODE_NULL, NODE_NULL))
+        return LBST(Node(key, value, 1, NODE_NULL, NODE_NULL))
 
-    return LBST(lbst.comparator, _node_set(lbst.root, lbst.comparator, key, value))
+    return LBST(_node_set(lbst.root, key, value))
 
 
 def _node_delete_min(node):
@@ -143,22 +143,22 @@ def _node_concat2(node, other):
     return _node_join(min.key, min.value, node, _node_delete_min(other))
 
 
-def _node_delete(node, comparator, key):
-    if comparator(key, node.key):
+def _node_delete(node, key):
+    if key < node.key:
         return _node_join(
-            node.key, node.value, _node_delete(node.left, comparator, key), node.right
+            node.key, node.value, _node_delete(node.left, key), node.right
         )
 
-    if comparator(node.key, key):
+    if node.key < key:
         return _node_join(
-            node.key, node.value, node.left, _node_delete(node.right, comparator, key)
+            node.key, node.value, node.left, _node_delete(node.right, key)
         )
 
     return _node_concat2(node.left, node.right)
 
 
 def delete(lbst, key):
-    return LBST(lbst.comparator, _node_delete(lbst.root, lbst.comparator, key))
+    return LBST(_node_delete(lbst.root, key))
 
 
 def _node_to_dict(node, out):
@@ -226,20 +226,20 @@ def max(lbst):
     return parent.key
 
 
-Cursor = namedtuple("Cursor", "comparator stack")
+Cursor = namedtuple("Cursor", "stack")
 
 
 def cursor(lbst):
-    return Cursor(lbst.comparator, [lbst.root])
+    return Cursor([lbst.root])
 
 
 def cursor_clone(cursor):
-    return Cursor(cursor.comparator, list(cursor.stack))
+    return Cursor(list(cursor.stack))
 
 
 def cursor_seek(cursor, key):
     while True:
-        if cursor.comparator(key, cursor.stack[-1].key):
+        if key < cursor.stack[-1].key:
             # copy!
             stack = list(cursor.stack)
             if cursor_previous(cursor):
@@ -247,7 +247,7 @@ def cursor_seek(cursor, key):
             else:
                 cursor.stack[:] = stack
                 return 1
-        elif cursor.comparator(cursor.stack[-1].key, key):
+        elif cursor.stack[-1].key < key:
             # copy!
             stack = list(cursor.stack)
             if cursor_next(cursor):
@@ -257,6 +257,15 @@ def cursor_seek(cursor, key):
                 return -1
         else:
             return 0
+
+
+def get(lbst, key, default=None):
+    c = cursor(lbst)
+    p = cursor_seek(c, key)
+    if p == 0:
+        return cursor_value(c)
+    else:
+        return default
 
 
 def cursor_key(cursor):
@@ -330,7 +339,8 @@ def cursor_previous(cursor):
 
 
 def to_dict(lbst):
-    # The created dict is sorted according to `lbst.comparator`.
+    # The created dict is sorted according to builtin python
+    # comparison.
     out = dict()
     _node_to_dict(lbst.root, out)
     return out
