@@ -1,24 +1,24 @@
 from random import randint
-#from matplotlib.pylab import *
+from matplotlib.pylab import *
 import time
 
 import lbst
 
 
-MAGIC = 1
+MAGIC = 3
 INTEGER_MAX = 2**16
 
 
-# figure(num=None, figsize=(8, 6), dpi=100)
+figure(num=None, figsize=(8, 6), dpi=100)
 
-# ax1 = subplot2grid((1, 1), (0, 0))
+ax1 = subplot2grid((1, 1), (0, 0))
 
 
 ava = dict()
-ava["kvcount"] = [100, 1_000, 10_000]
-ava["list"] = []
+ava["kvcount"] = [10, 50, 100, 250, 500, 750, 1_000]
 ava["dict"] = []
 ava["lbst"] = []
+ava["speedup"] = []
 
 
 def average(lst):
@@ -35,24 +35,6 @@ def timeit(func, *args, **kwargs):
     return average(timings)
 
 
-def benchmark_naive_list(values):
-    out = list()
-    for value in values:
-        out = list(out)
-        out.append((value, value))
-        out = sorted(out)
-
-    # accumulator = 0
-    # for _ in range(MAGIC):
-    #     for value in values:
-    #         for (k, v) in out:
-    #             if k == value:
-    #                 some = v
-    #                 accumulator += some
-    #                 break
-    # return accumulator
-
-
 def benchmark_naive_dict(values):
     out = dict()
     for value in values:
@@ -61,12 +43,12 @@ def benchmark_naive_dict(values):
         out = sorted(out.items())
         out = dict(out)
 
-    # accumulator = 0
-    # for _ in range(MAGIC):
-    #     for value in values:
-    #         some = out[value]
-    #         accumulator += some
-    # return accumulator
+    accumulator = 0
+    for _ in range(MAGIC):
+        for value in values:
+            some = out[value]
+            accumulator += some
+    return accumulator
 
 
 def benchmark_lbst(values):
@@ -83,11 +65,21 @@ def benchmark_lbst(values):
 
 
 BENCHMARKS = (
-    # ('list', benchmark_naive_list),
-    # ('dict', benchmark_naive_dict),
+    ('dict', benchmark_naive_dict),
     ('lbst', benchmark_lbst),
 )
 
+# warmup
+
+print('warmup')
+for name, func in BENCHMARKS:
+    for _ in range(MAGIC):
+        values = [randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(1_000)]
+        print(name, timeit(func, values))
+
+# benchmarks
+
+print('benchmarks')
 for kvcount in ava["kvcount"]:
     values = [randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(kvcount)]
     print(kvcount, 'start')
@@ -100,11 +92,13 @@ for kvcount in ava["kvcount"]:
         ava[name].append(timing / kvcount)
         print(kvcount, name, timing)
 
+for d, l in zip(ava['dict'], ava['lbst']):
+    ava["speedup"].append((l - d) / d)
 
-# plot(ava['kvcount'], ava['list'], ':', label="list")
-# plot(ava['kvcount'], ava['dict'], '-', label="dict")
+
+plot(ava['kvcount'], ava['speedup'], '-', label="speedup")
 # plot(ava['kvcount'], ava['lbst'], '^', label="lbst", linewidth=2)
 # legend(loc='upper left', fancybox=True, shadow=True, prop=dict(size=10))
-# grid(True, which="both", linestyle="dotted")
+grid(True, which="both", linestyle="dotted")
 # ylabel("seconds")
-# savefig("benchmarks.png")
+savefig("benchmarks.png")
