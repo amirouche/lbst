@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "lbst"
 version = "0.0.0"
-description = ""
+description = "Immutable Log-Balanced Search Tree"
 authors = ["Amirouche <amirouche@hyper.dev>"]
 license = "CC0"
 
