@@ -7,23 +7,24 @@ init: ## Use the system python3 to create a virtual environment with poetry (req
 	POETRY_VIRTUALENVS_PATH=venv poetry shell
 
 check: ## Run tests, and security audit.
-	POETRY_VIRTUALENVS_PATH=venv poetry run pytest -vvv --capture=no --cov-report=term --cov-report=html --cov=sh tests.py
+	POETRY_VIRTUALENVS_PATH=venv poetry run pytest -vvv --capture=no --cov-report=term --cov-report=html --cov=lbst --numprocesses=auto tests.py
 	# XXX: ignore the use of assert B101, and the non-cryptographic quality of random B311
-	POETRY_VIRTUALENVS_PATH=venv poetry run bandit --skip=B101,B311 sh.py
+	POETRY_VIRTUALENVS_PATH=venv poetry run bandit --skip=B101,B311 lbst.py
 
 check-fast: ## Run tests, exit on first error.
-	POETRY_VIRTUALENVS_PATH=venv poetry run pytest --exitfirst -vvv --capture=no tests.py
+	POETRY_VIRTUALENVS_PATH=venv poetry run pytest --exitfirst -vvv --capture=no --numprocesses=auto tests.py
 
 lint: ## Run linter.
-	POETRY_VIRTUALENVS_PATH=venv poetry run pylama sh.py
+	POETRY_VIRTUALENVS_PATH=venv poetry run pylama lbst.py
 
 todo: ## Things that should be done...
-	@grep -nR --color=always  --before-context=2  --after-context=2 TODO sh.py
+	@grep -nR --color=always  --before-context=2  --after-context=2 TODO lbst.py
 
 xxx: ## Things that require attention!
-	@grep -nR --color=always --before-context=2  --after-context=2 XXX sh.py
+	@grep -nR --color=always --before-context=2  --after-context=2 XXX lbst.py
 
 release: check ## Let there be releases (to use with care).
 	POETRY_VIRTUALENVS_PATH=venv poetry run poetry export -f requirements.txt --output requirements.txt
-	POETRY_VIRTUALENVS_PATH=venv poetry run black sh.py
+	POETRY_VIRTUALENVS_PATH=venv poetry run black lbst.py
 	POETRY_VIRTUALENVS_PATH=venv poetry run black tests.py
+	POETRY_VIRTUALENVS_PATH=venv poetry publish --build

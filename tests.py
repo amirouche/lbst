@@ -1,11 +1,11 @@
 import time
 import operator
 import random
-import sh
+import lbst
 
 
 def test_mic():
-    assert sh._mic()
+    assert lbst._mic()
 
 
 MAGIC = 100
@@ -17,15 +17,15 @@ def test_balanced_and_sorted_random_trees_of_integers():
     for _ in range(MAGIC):
         # given
         expected = dict()
-        tree = sh.make(operator.lt)
+        tree = lbst.make(operator.lt)
         for i in range(TREE_MAX_SIZE):
             key = value = random.randint(-INTEGER_MAX, INTEGER_MAX)
-            tree = sh.set(tree, key, value)
+            tree = lbst.set(tree, key, value)
             expected[key] = value
         # when
-        out = tuple(sh.to_dict(tree).items())
+        out = tuple(lbst.to_dict(tree).items())
         # then
-        assert sh._is_balanced(tree)
+        assert lbst._is_balanced(tree)
         expected = tuple(sorted(expected.items()))
         assert out == expected
 
@@ -34,24 +34,24 @@ def test_balanced_and_sorted_random_trees_of_floats():
     for _ in range(MAGIC):
         # given
         expected = dict()
-        tree = sh.make(operator.lt)
+        tree = lbst.make(operator.lt)
         for i in range(TREE_MAX_SIZE):
             key = value = random.uniform(-INTEGER_MAX, INTEGER_MAX)
-            tree = sh.set(tree, key, value)
+            tree = lbst.set(tree, key, value)
             expected[key] = value
         # when
-        out = tuple(sh.to_dict(tree).items())
+        out = tuple(lbst.to_dict(tree).items())
         # then
-        assert sh._is_balanced(tree)
+        assert lbst._is_balanced(tree)
         expected = tuple(sorted(expected.items()))
         assert out == expected
 
 
 def test_faster_than_naive():
     def make_lbst_tree(values):
-        out = sh.make(operator.lt)
+        out = lbst.make(operator.lt)
         for value in values:
-            out = sh.set(out, value, value)
+            out = lbst.set(out, value, value)
         return out
 
     def make_naive(values):
@@ -82,11 +82,11 @@ def test_min():
         ]
         values = sorted(values)
 
-        tree = sh.make(operator.lt)
+        tree = lbst.make(operator.lt)
         for value in values:
-            tree = sh.set(tree, value, value)
+            tree = lbst.set(tree, value, value)
 
-        assert sh.min(tree) == values[0]
+        assert lbst.min(tree) == values[0]
 
 
 def test_max():
@@ -96,11 +96,11 @@ def test_max():
         ]
         values = sorted(values)
 
-        tree = sh.make(operator.lt)
+        tree = lbst.make(operator.lt)
         for value in values:
-            tree = sh.set(tree, value, value)
+            tree = lbst.set(tree, value, value)
 
-        assert sh.max(tree) == values[-1]
+        assert lbst.max(tree) == values[-1]
 
 
 def test_cursor_next():
@@ -110,22 +110,22 @@ def test_cursor_next():
         ]
         values = sorted(set(values))
 
-        tree = sh.make(operator.lt)
+        tree = lbst.make(operator.lt)
         for value in values:
-            tree = sh.set(tree, value, value)
+            tree = lbst.set(tree, value, value)
 
-        min = sh.min(tree)
+        min = lbst.min(tree)
         assert min == values[0]
 
-        cursor = sh.cursor(tree)
-        sh.cursor_seek(cursor, min)
-        assert sh.cursor_key(cursor) == values[0]
+        cursor = lbst.cursor(tree)
+        lbst.cursor_seek(cursor, min)
+        assert lbst.cursor_key(cursor) == values[0]
 
         for index in range(1, len(values)):
-            sh.cursor_next(cursor)
-            assert sh.cursor_key(cursor) == values[index]
+            lbst.cursor_next(cursor)
+            assert lbst.cursor_key(cursor) == values[index]
 
-        assert not sh.cursor_next(cursor)
+        assert not lbst.cursor_next(cursor)
 
 
 def test_cursor_previous():
@@ -135,19 +135,19 @@ def test_cursor_previous():
         ]
         values = sorted(set(values))
 
-        tree = sh.make(operator.lt)
+        tree = lbst.make(operator.lt)
         for value in values:
-            tree = sh.set(tree, value, value)
+            tree = lbst.set(tree, value, value)
 
-        max = sh.max(tree)
+        max = lbst.max(tree)
         assert max == values[len(values) - 1]
 
-        cursor = sh.cursor(tree)
-        sh.cursor_seek(cursor, max)
-        assert sh.cursor_key(cursor) == values[len(values) - 1]
+        cursor = lbst.cursor(tree)
+        lbst.cursor_seek(cursor, max)
+        assert lbst.cursor_key(cursor) == values[len(values) - 1]
 
         for index in range(len(values) - 1, -1):
-            sh.cursor_next(cursor)
-            assert sh.cursor_key(cursor) == values[index]
+            lbst.cursor_next(cursor)
+            assert lbst.cursor_key(cursor) == values[index]
 
-        assert not sh.cursor_next(cursor)
+        assert not lbst.cursor_next(cursor)
