@@ -1,5 +1,5 @@
 from random import randint
-# from matplotlib.pylab import *
+#from matplotlib.pylab import *
 import time
 
 import lbst
@@ -15,7 +15,7 @@ INTEGER_MAX = 2**16
 
 
 ava = dict()
-ava["kvcount"] = [1_000, 10_000]
+ava["kvcount"] = [100, 1_000, 10_000]
 ava["list"] = []
 ava["dict"] = []
 ava["lbst"] = []
@@ -97,7 +97,7 @@ for kvcount in ava["kvcount"]:
             timing = timeit(func, values)
             timings.append(timing)
         timing = average(timings)
-        ava[name].append(timing)
+        ava[name].append(timing / kvcount)
         print(kvcount, name, timing)
 
 
