@@ -1,6 +1,10 @@
 # Immutable Log-Balanced Search Tree
 
-**prototype**
+**prototype** early wall-clock time benchmarks show that this
+datastructure becomes interesting performance-wise with PyPy 3.7
+starting with 200 key-value pairs. With CPython, in so far, it is
+never faster to use LBST, and you can have your way with builtin
+`dict` and `copies`.
 
 ![pink sakura tree at daytime](https://images.unsplash.com/photo-1515863149848-223cbed59017?w=1024&q=80)
 
@@ -59,7 +63,7 @@ dictionary keys according to `mykeyfunc` in order for instance to
 speed up linear lookup. Using LBST, you can build a **large**
 dictionary that is sorted at construction time, save a few cycles by
 avoding a reconstruction, duplicated effort, copies, and keep the
-overall wall-clock time under control; see benchmarks.
+overall wall-clock time under control.
 
 ## `lbst.make()`
 
