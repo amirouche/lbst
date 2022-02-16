@@ -73,9 +73,10 @@ method called
 Return a tree based on `tree` where `key` is associated with
 `value`.
 
-## `lbst.get(tree, key)`
+## `lbst.get(tree, key, default=None)`
 
-Return the value associated with `key` in `tree`.
+Return the value associated with `key` in `tree`. If `key` is not
+present in `tree`, returns `default`.
 
 ## `lbst.delete(tree, key)`
 
@@ -100,8 +101,8 @@ cursor is stateful: its position is changed / mutated in-place.
 
 ## `lbst.cursor_clone(cursor)`
 
-Return a cursor at the same position as `cursor` that does share state
-with `cursor`.
+Return a cursor at the same position as `cursor` that does not share
+state with `cursor`.
 
 ## `lbst.cursor_seek(cursor, key)`
 
@@ -113,7 +114,7 @@ cases: 1) if the cursor is positioned after, then `lbst.cursor_seek`
 returns `1`, and 2) if the cursor is positioned before, then
 `lbst.cursor_seek` return `-1`.
 
-That is `lbst.cursor_seek` return value are:
+In other words, `lbst.cursor_seek`:
 
 - Return `-1`, then `cursor` is before `key`;
 - Return `0`, then `cursor` is **on** `key`;
