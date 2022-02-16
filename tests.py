@@ -9,7 +9,7 @@ def test_mic():
 
 
 MAGIC = 100
-TREE_MAX_SIZE = 10000 # random.randint(MAGIC, MAGIC * 100)
+TREE_MAX_SIZE = 10000  # random.randint(MAGIC, MAGIC * 100)
 INTEGER_MAX = random.randint(MAGIC, MAGIC * 10_000)
 
 

@@ -20,19 +20,25 @@ NODE_NULL = Node(None, None, 0, None, None)
 
 FILO_NULL = object()
 
+
 def _make_filo():
     return FILO_NULL
+
 
 def _filo_push(filo, object):
     return (object, filo)
 
+
 def _filo_peek(filo):
     return filo[0]
+
 
 def _filo_pop(filo):
     return filo[0], filo[1]
 
+
 # lbst and node
+
 
 def make():
     return LBST(NODE_NULL)
