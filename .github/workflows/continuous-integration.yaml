@@ -28,6 +28,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - run: pip install --quiet poetry
-      - run: poetry install --quiet --no-ansi
-      - run: poetry run pytest --exitfirst --no-header --tb=no --quiet --assert=plain --numprocesses=auto tests.py
+      - run: pip install poetry
+      - run: poetry install --no-ansi
+      - run: poetry run pytest --exitfirst --no-header --tb=no --assert=plain --numprocesses=auto tests.py
