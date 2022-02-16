@@ -3,7 +3,7 @@
 **prototype:** early wall-clock time benchmarks show that this
 datastructure becomes interesting with PyPy 3.7 and more than 200
 key-value pairs. With CPython, in so far, it is never faster to use
-LBST, and you can have your way with builtin `dict` and `copies`.
+LBST, and you can have your way with builtin `dict` and copies.
 
 ![pink sakura tree at daytime](https://images.unsplash.com/photo-1515863149848-223cbed59017?w=1024&q=80)
 
