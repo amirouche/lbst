@@ -8,7 +8,7 @@ from collections import namedtuple
 # ref: https://scholar.google.fr/scholar?cluster=16806430159882137269
 #
 
-LBST = namedtuple("LBST", "comparator root")
+LBST = namedtuple("LBST", "root")
 
 Node = namedtuple("Node", "key value size left right")
 
@@ -16,8 +16,26 @@ Node = namedtuple("Node", "key value size left right")
 NODE_NULL = Node(None, None, 0, None, None)
 
 
-def make(comparator=operator.lt):
-    return LBST(comparator, NODE_NULL)
+# immutable filo
+
+FILO_NULL = object()
+
+def _make_filo():
+    return FILO_NULL
+
+def _filo_push(filo, object):
+    return (object, filo)
+
+def _filo_peek(filo):
+    return filo[0]
+
+def _filo_pop(filo):
+    return filo[0], filo[1]
+
+# lbst and node
+
+def make():
+    return LBST(NODE_NULL)
 
 
 def _is_less(a, b):
@@ -88,26 +106,26 @@ def _node_rebalance(key, value, left, right):
     return Node(key, value, left.size + right.size + 1, left, right)
 
 
-def _node_set(node, comparator, key, value):
+def _node_set(node, key, value):
     if node is NODE_NULL:
         return Node(key, value, 1, NODE_NULL, NODE_NULL)
 
-    if comparator(key, node.key):
+    if key < node.key:
         # The given KEY is less that node.key, recurse left side.
         return _node_rebalance(
             node.key,
             node.value,
-            _node_set(node.left, comparator, key, value),
+            _node_set(node.left, key, value),
             node.right,
         )
 
-    if comparator(node.key, key):
+    if node.key < key:
         # The given KEY is more than node.key, recurse right side.
         return _node_rebalance(
             node.key,
             node.value,
             node.left,
-            _node_set(node.right, comparator, key, value),
+            _node_set(node.right, key, value),
         )
 
     # otherwise, `key` is equal to `node.key`, create a new node with
@@ -118,9 +136,9 @@ def _node_set(node, comparator, key, value):
 
 def set(lbst, key, value):
     if lbst.root is NODE_NULL:
-        return LBST(lbst.comparator, Node(key, value, 1, NODE_NULL, NODE_NULL))
+        return LBST(Node(key, value, 1, NODE_NULL, NODE_NULL))
 
-    return LBST(lbst.comparator, _node_set(lbst.root, lbst.comparator, key, value))
+    return LBST(_node_set(lbst.root, key, value))
 
 
 def _node_delete_min(node):
@@ -143,32 +161,22 @@ def _node_concat2(node, other):
     return _node_join(min.key, min.value, node, _node_delete_min(other))
 
 
-def _node_delete(node, comparator, key):
-    if comparator(key, node.key):
+def _node_delete(node, key):
+    if key < node.key:
         return _node_join(
-            node.key, node.value, _node_delete(node.left, comparator, key), node.right
+            node.key, node.value, _node_delete(node.left, key), node.right
         )
 
-    if comparator(node.key, key):
+    if node.key < key:
         return _node_join(
-            node.key, node.value, node.left, _node_delete(node.right, comparator, key)
+            node.key, node.value, node.left, _node_delete(node.right, key)
         )
 
     return _node_concat2(node.left, node.right)
 
 
 def delete(lbst, key):
-    return LBST(lbst.comparator, _node_delete(lbst.root, lbst.comparator, key))
-
-
-def _node_to_dict(node, out):
-    if node.left is not NODE_NULL:
-        _node_to_dict(node.left, out)
-
-    out[node.key] = node.value
-
-    if node.right is not NODE_NULL:
-        _node_to_dict(node.right, out)
+    return LBST(_node_delete(lbst.root, key))
 
 
 def _node_is_balanced(node):
@@ -226,111 +234,135 @@ def max(lbst):
     return parent.key
 
 
-Cursor = namedtuple("Cursor", "comparator stack")
+Cursor = namedtuple("Cursor", "stack")
 
 
 def cursor(lbst):
-    return Cursor(lbst.comparator, [lbst.root])
+    filo = _make_filo()
+    filo = _filo_push(filo, lbst.root)
+    # XXX: boxing the filo, to be able to replace it. That is why
+    # cursor is stateful.
+    return Cursor([filo])
 
 
 def cursor_clone(cursor):
-    return Cursor(cursor.comparator, list(cursor.stack))
+    return Cursor([cursor.stack[0]])
 
 
 def cursor_seek(cursor, key):
     while True:
-        if cursor.comparator(key, cursor.stack[-1].key):
-            # copy!
-            stack = list(cursor.stack)
+        node = _filo_peek(cursor.stack[0])
+        if key < node.key:
+            filo = cursor.stack[0]
             if cursor_previous(cursor):
                 continue
             else:
-                cursor.stack[:] = stack
+                cursor.stack[0] = filo
                 return 1
-        elif cursor.comparator(cursor.stack[-1].key, key):
-            # copy!
-            stack = list(cursor.stack)
+        elif node.key < key:
+            filo = cursor.stack[0]
             if cursor_next(cursor):
                 continue
             else:
-                cursor.stack[:] = stack
+                cursor.stack[0] = filo
                 return -1
         else:
             return 0
 
 
+def get(lbst, key, default=None):
+    c = cursor(lbst)
+    p = cursor_seek(c, key)
+    if p == 0:
+        return cursor_value(c)
+    else:
+        return default
+
+
 def cursor_key(cursor):
-    if not cursor.stack:
-        raise RuntimeError("Invalid cursor")
-    return cursor.stack[-1].key
+    assert cursor.stack[0] is not FILO_NULL
+
+    return cursor.stack[0][0].key
 
 
 def cursor_value(cursor):
-    if not cursor.stack:
-        raise RuntimeError("Invalid cursor")
-    return cursor.stack[-1].value
+    assert cursor.stack[0] is not FILO_NULL
+
+    return cursor.stack[0][0].value
 
 
 def cursor_next(cursor):
-    if not cursor.stack:
-        raise RuntimeError("Invalid cursor")
+    assert cursor.stack[0] is not FILO_NULL
 
-    node = cursor.stack[-1]
+    node = _filo_peek(cursor.stack[0])
 
     if node.right is NODE_NULL:
-        cursor.stack.pop()
+        node, filo = _filo_pop(cursor.stack[0])
+        while filo is not FILO_NULL:
+            parent, rest = _filo_pop(filo)
 
-        while cursor.stack:
-            if not cursor.stack:
-                return False
-
-            parent = cursor.stack[-1]
             if parent.left is node:
+                cursor.stack[0] = filo
                 return True
-            node = cursor.stack.pop()
+
+            node = parent
+            filo = rest
         return False
     else:
         # Then the next value is the minimal value in node.right.
 
         # Go through the sub-tree always turning left until a
         # NODE_NULL is found.
-        cursor.stack.append(node.right)
-        while True:
-            if cursor.stack[-1].left is NODE_NULL:
-                break
-            cursor.stack.append(cursor.stack[-1].left)
+        node = node.right
+        filo = _filo_push(cursor.stack[0], node)
+        while node.left is not NODE_NULL:
+            node = node.left
+            filo = _filo_push(filo, node)
+        cursor.stack[0] = filo
         return True
 
 
 def cursor_previous(cursor):
-    if not cursor.stack:
-        raise RuntimeError("Invalid cursor")
+    assert cursor.stack[0] is not FILO_NULL
 
-    node = cursor.stack[-1]
+    node = _filo_peek(cursor.stack[0])
 
     if node.left is NODE_NULL:
-        cursor.stack.pop()
-        while cursor.stack:
-            if not cursor.stack:
-                return False
+        node, filo = _filo_pop(cursor.stack[0])
 
-            parent = cursor.stack[-1]
+        while filo is not FILO_NULL:
+            parent, rest = _filo_pop(filo)
+
             if parent.right is node:
+                cursor.stack[0] = filo
                 return True
-            node = cursor.stack.pop()
+            node = parent
+            filo = rest
 
         return False
     else:
-        cursor.stack.append(node.left)
-        while True:
-            if cursor.stack[-1].right is NODE_NULL:
-                break
-            cursor.stack.append(cursor.stack[-1].right)
+        node = node.left
+        filo = _filo_push(cursor.stack[0], node)
+        while node.right is not NODE_NULL:
+            node = node.right
+            filo = _filo_push(filo, node)
+        cursor.stack[0] = filo
         return True
 
 
+def _node_to_dict(node, out):
+    if node.left is not NODE_NULL:
+        _node_to_dict(node.left, out)
+
+    out[node.key] = node.value
+
+    if node.right is not NODE_NULL:
+        _node_to_dict(node.right, out)
+
+
 def to_dict(lbst):
-    # The created dict is sorted according to `lbst.comparator`.
+    # The created dict is sorted according to builtin python
+    # comparison.
     out = dict()
     _node_to_dict(lbst.root, out)
     return out
