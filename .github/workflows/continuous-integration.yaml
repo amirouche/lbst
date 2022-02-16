@@ -16,7 +16,7 @@ jobs:
           - pypy-3.7
           # Fails at this time because there is no Python.h, possibly
           # a bug in actions/setup-python on ubuntu.
-          - pypy-3.8
+          # - pypy-3.8
         os:
           - ubuntu-latest
           - macos-latest
