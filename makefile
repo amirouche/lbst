@@ -27,7 +27,7 @@ pre-release: check ## Prepare release (to use with care).
 	POETRY_VIRTUALENVS_PATH=venv poetry run poetry export -f requirements.txt --output requirements.txt
 	POETRY_VIRTUALENVS_PATH=venv poetry run black lbst.py
 	POETRY_VIRTUALENVS_PATH=venv poetry run black tests.py
-	git commit -am "cosmit"
+	git commit -am "🪄 cosmit ✨"
 
 release: check ## Release (to use with care).
 	POETRY_VIRTUALENVS_PATH=venv poetry publish --build
