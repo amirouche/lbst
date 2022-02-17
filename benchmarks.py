@@ -5,7 +5,7 @@ import time
 import lbst
 
 
-MAGIC = 3
+MAGIC = 100
 INTEGER_MAX = 2**16
 
 

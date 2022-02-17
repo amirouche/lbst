@@ -214,7 +214,7 @@ def _node_min(node):
     return parent
 
 
-def min(lbst):
+def begin(lbst):
     # The minimal key is the left-most node
     if lbst.root.size == 0:
         raise RuntimeError("The tree is empty!")
@@ -223,7 +223,7 @@ def min(lbst):
     return node.key
 
 
-def max(lbst):
+def end(lbst):
     # The maximum key is the right-most node
     if lbst.root.size == 0:
         raise RuntimeError("The tree is empty!")
@@ -256,24 +256,84 @@ def cursor_clone(cursor):
 
 
 def cursor_seek(cursor, key):
+
+    # TODO: check the tree is not empty
+    filo = cursor.stack[0]
+    if filo is FILO_NULL:
+        return None
+
     while True:
-        node = _filo_peek(cursor.stack[0])
+        node, rest = _filo_pop(filo)
+
         if key < node.key:
-            filo = cursor.stack[0]
-            if cursor_previous(cursor):
-                continue
+
+            if rest is FILO_NULL:
+                if node.left is NODE_NULL:
+                    cursor.stack[0] = filo
+                    return 1
+                else:
+                    filo = _filo_push(filo, node.left)
+                    continue
+
+            parent = _filo_peek(rest)
+
+            if parent.right is node:
+                if parent.key < key:
+                    if node.left is NODE_NULL:
+                        cursor.stack[0] = filo
+                        return 1
+                    else:
+                        filo = _filo_push(filo, node.left)
+                        continue
+                else:
+                    parent, filo = _filo_pop(filo)
+                    continue
             else:
-                cursor.stack[0] = filo
-                return 1
-        elif node.key < key:
-            filo = cursor.stack[0]
-            if cursor_next(cursor):
-                continue
+                if node.left is NODE_NULL:
+                    cursor.stack[0] = filo
+                    return 1
+                else:
+                    filo = _filo_push(filo, node.left)
+                    continue
+
+        if node.key < key:
+
+            if rest is FILO_NULL:
+                if node.right is NODE_NULL:
+                    cursor.stack[0] = filo
+                    return -1
+                else:
+                    filo = _filo_push(filo, node.right)
+                    continue
+
+            parent = _filo_peek(rest)
+
+            if parent.left is node:
+                if key < parent.key:
+                    if node.right is NODE_NULL:
+                        cursor.stack[0] = filo
+                        return -1
+                    else:
+                        filo = _filo_push(filo, node.right)
+                        continue
+                else:
+                    parent, filo = _filo_pop(filo)
+                    continue
             else:
-                cursor.stack[0] = filo
-                return -1
-        else:
-            return 0
+                if node.right is NODE_NULL:
+                    cursor.stack[0] = filo
+                    return -1
+                else:
+                    filo = _filo_push(filo, node.right)
+                    continue
+
+
+        # else key == node.key
+        cursor.stack[0] = filo
+        return 0
+
+
+
 
 
 def get(lbst, key, default=None):
