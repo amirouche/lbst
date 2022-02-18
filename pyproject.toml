@@ -10,7 +10,6 @@ readme = "README.md"
 python = "^3.7"
 
 [tool.poetry.dev-dependencies]
-matplotlib = "*"
 pytest = "*"
 bandit = "*"
 pylama = "*"
@@ -21,6 +20,7 @@ pytest-randomly = "*"
 pytest-xdist = "*"
 jedi = "*"
 flake8 = "*"
+termgraph = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

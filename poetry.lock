@@ -91,31 +91,12 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
 
 [[package]]
-name = "cloudpickle"
-version = "2.0.0"
-description = "Extended pickling support for Python objects"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
 name = "colorama"
 version = "0.4.4"
 description = "Cross-platform colored terminal text."
 category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[[package]]
-name = "commonmark"
-version = "0.9.1"
-description = "Python parser for the CommonMark Markdown spec"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.extras]
-test = ["flake8 (==3.7.8)", "hypothesis (==3.55.3)"]
 
 [[package]]
 name = "coverage"
@@ -135,7 +116,7 @@ toml = ["tomli"]
 name = "cycler"
 version = "0.11.0"
 description = "Composable style cycles"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -176,7 +157,7 @@ pyflakes = ">=2.4.0,<2.5.0"
 name = "fonttools"
 version = "4.29.1"
 description = "Tools to manipulate font files"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -291,7 +272,7 @@ testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<7.0.0)"]
 name = "kiwisolver"
 version = "1.3.2"
 description = "A fast implementation of the Cassowary constraint solver"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -299,7 +280,7 @@ python-versions = ">=3.7"
 name = "matplotlib"
 version = "3.5.1"
 description = "Python plotting package"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -345,23 +326,15 @@ python-versions = "*"
 name = "numpy"
 version = "1.21.1"
 description = "NumPy is the fundamental package for array computing with Python."
-category = "main"
-optional = false
-python-versions = ">=3.7"
-
-[[package]]
-name = "nvidia-ml-py"
-version = "11.515.0"
-description = "Python Bindings for the NVIDIA Management Library"
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 
 [[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -419,7 +392,7 @@ python-versions = "*"
 name = "pillow"
 version = "9.0.1"
 description = "Python Imaging Library (Fork)"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -542,7 +515,7 @@ vulture = ["vulture"]
 name = "pyparsing"
 version = "3.0.7"
 description = "Python parsing module"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -632,7 +605,7 @@ testing = ["filelock"]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 
@@ -648,41 +621,10 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
-name = "rich"
-version = "11.2.0"
-description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
-category = "dev"
-optional = false
-python-versions = ">=3.6.2,<4.0.0"
-
-[package.dependencies]
-colorama = ">=0.4.0,<0.5.0"
-commonmark = ">=0.9.0,<0.10.0"
-pygments = ">=2.6.0,<3.0.0"
-typing-extensions = {version = ">=3.7.4,<5.0", markers = "python_version < \"3.8\""}
-
-[package.extras]
-jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
-
-[[package]]
-name = "scalene"
-version = "1.5.4"
-description = "Scalene: A high-resolution, low-overhead CPU, GPU, and memory profiler for Python"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-
-[package.dependencies]
-cloudpickle = ">=1.5.0"
-numpy = "*"
-nvidia-ml-py = ">=11.450.51"
-rich = ">=9.2.0"
-
-[[package]]
 name = "setuptools-scm"
 version = "6.4.2"
 description = "the blessed package to manage your versions by scm tags"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -698,7 +640,7 @@ toml = ["setuptools (>=42)"]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
@@ -731,10 +673,21 @@ importlib-metadata = {version = ">=1.7.0", markers = "python_version < \"3.8\""}
 pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 
 [[package]]
+name = "termgraph"
+version = "0.5.3"
+description = "A command-line tool that draws basic graphs in the terminal."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+colorama = "*"
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -788,7 +741,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "1bdee68de57f17ab9eeaf1502a29c62a57bd93b1f149bf45ba3817e425fe41a7"
+content-hash = "d2dffe7d2da93139a176cd9080c3b72cd5403edc4549cf7754ce093ea961522b"
 
 [metadata.files]
 appnope = [
@@ -840,17 +793,9 @@ click = [
     {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},
     {file = "click-8.0.3.tar.gz", hash = "sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b"},
 ]
-cloudpickle = [
-    {file = "cloudpickle-2.0.0-py3-none-any.whl", hash = "sha256:6b2df9741d06f43839a3275c4e6632f7df6487a1f181f5f46a052d3c917c3d11"},
-    {file = "cloudpickle-2.0.0.tar.gz", hash = "sha256:5cd02f3b417a783ba84a4ec3e290ff7929009fe51f6405423cfccfadd43ba4a4"},
-]
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
-]
-commonmark = [
-    {file = "commonmark-0.9.1-py2.py3-none-any.whl", hash = "sha256:da2f38c92590f83de410ba1a3cbceafbc74fee9def35f9251ba9a971d6d66fd9"},
-    {file = "commonmark-0.9.1.tar.gz", hash = "sha256:452f9dc859be7f06631ddcb328b6919c67984aca654e5fefb3914d54691aed60"},
 ]
 coverage = [
     {file = "coverage-6.3.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:eeffd96882d8c06d31b65dddcf51db7c612547babc1c4c5db6a011abe9798525"},
@@ -1064,10 +1009,6 @@ numpy = [
     {file = "numpy-1.21.1-pp37-pypy37_pp73-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:2d4d1de6e6fb3d28781c73fbde702ac97f03d79e4ffd6598b880b2d95d62ead4"},
     {file = "numpy-1.21.1.zip", hash = "sha256:dff4af63638afcc57a3dfb9e4b26d434a7a602d225b42d746ea7fe2edf1342fd"},
 ]
-nvidia-ml-py = [
-    {file = "nvidia-ml-py-11.515.0.tar.gz", hash = "sha256:8b064f97e30de27f0fc32dd618b8a57b2cf3263c1346142f0566512247996d9d"},
-    {file = "nvidia_ml_py-11.515.0-py3-none-any.whl", hash = "sha256:f0b9295adfa82c57202520b86caa9d1b319292a8caed5b95646ac46c6f28405e"},
-]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
@@ -1232,24 +1173,6 @@ pyyaml = [
     {file = "PyYAML-6.0-cp39-cp39-win_amd64.whl", hash = "sha256:b3d267842bf12586ba6c734f89d1f5b871df0273157918b0ccefa29deb05c21c"},
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
-rich = [
-    {file = "rich-11.2.0-py3-none-any.whl", hash = "sha256:d5f49ad91fb343efcae45a2b2df04a9755e863e50413623ab8c9e74f05aee52b"},
-    {file = "rich-11.2.0.tar.gz", hash = "sha256:1a6266a5738115017bb64a66c59c717e7aa047b3ae49a011ede4abdeffc6536e"},
-]
-scalene = [
-    {file = "scalene-1.5.4-cp310-cp310-macosx_10_15_universal2.whl", hash = "sha256:2e9ccf3e1fd12fbd44f056f881582e5bf79f19938d2ce0c158bc12e945accd62"},
-    {file = "scalene-1.5.4-cp310-cp310-manylinux_2_24_x86_64.whl", hash = "sha256:1904c615a0616d0a7b507e5507be5da606b519c80831630b12daae6b45da3c7e"},
-    {file = "scalene-1.5.4-cp310-cp310-win_amd64.whl", hash = "sha256:8f83f1618d7c261fb7603ec1cec6f85f726f8f1c0b648368c235418cba5045fc"},
-    {file = "scalene-1.5.4-cp37-cp37m-macosx_10_14_universal2.whl", hash = "sha256:3079c12d62954ff9a3099411fe381221e0da75e4f74679a6782a1e4c84acc79d"},
-    {file = "scalene-1.5.4-cp37-cp37m-manylinux_2_24_x86_64.whl", hash = "sha256:040e9544705f05baa28c2719a4970032a30b22328d737eb4f2370d02b96d11d7"},
-    {file = "scalene-1.5.4-cp38-cp38-macosx_10_14_universal2.whl", hash = "sha256:9e1cc7d5ca2a13eb8c47ee4b039eb130427f3a61669519d894f7967badcd1d38"},
-    {file = "scalene-1.5.4-cp38-cp38-manylinux_2_24_x86_64.whl", hash = "sha256:eaddd1f25e2f0c9a7ef27b2504a32bb1ab1d6329d9dac1a75d89a052cb1692d3"},
-    {file = "scalene-1.5.4-cp38-cp38-win_amd64.whl", hash = "sha256:170d8e869e696c216d92219c9ab3e04125c63d20c4738000bbb4098d5053d181"},
-    {file = "scalene-1.5.4-cp39-cp39-macosx_10_15_universal2.whl", hash = "sha256:f93dd3ddb3e2e752544a059520bc82a66019832bd4380ee4230aed665751052b"},
-    {file = "scalene-1.5.4-cp39-cp39-manylinux_2_24_x86_64.whl", hash = "sha256:b8875464f721ab84d350841ddbcf8f3649501d90ce5b7680b9e5a701d6d3bba7"},
-    {file = "scalene-1.5.4-cp39-cp39-win_amd64.whl", hash = "sha256:a3918b01a77eb240e72fb6d6d3cf7277c970aac1c88d7a79e24f0f42b2af15ef"},
-    {file = "scalene-1.5.4.tar.gz", hash = "sha256:2e9563adee90f474ada3e098112f2fff1491d1e497ae05c9f3d1162f696dba3b"},
-]
 setuptools-scm = [
     {file = "setuptools_scm-6.4.2-py3-none-any.whl", hash = "sha256:acea13255093849de7ccb11af9e1fb8bde7067783450cee9ef7a93139bddf6d4"},
     {file = "setuptools_scm-6.4.2.tar.gz", hash = "sha256:6833ac65c6ed9711a4d5d2266f8024cfa07c533a0e55f4c12f6eff280a5a9e30"},
@@ -1269,6 +1192,10 @@ snowballstemmer = [
 stevedore = [
     {file = "stevedore-3.5.0-py3-none-any.whl", hash = "sha256:a547de73308fd7e90075bb4d301405bebf705292fa90a90fc3bcf9133f58616c"},
     {file = "stevedore-3.5.0.tar.gz", hash = "sha256:f40253887d8712eaa2bb0ea3830374416736dc8ec0e22f5a65092c1174c44335"},
+]
+termgraph = [
+    {file = "termgraph-0.5.3-py3-none-any.whl", hash = "sha256:c181c168c2278a7f7161de05b1033396a2f6b06ab260ddf987b0320fae93ff8e"},
+    {file = "termgraph-0.5.3.tar.gz", hash = "sha256:36ff2098e41eeab1e7cdda7366dc3e5b514ea799fa3e77537564492a7edefdd5"},
 ]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},

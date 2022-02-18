@@ -1,21 +1,15 @@
 from random import randint
-from matplotlib.pylab import *
 import time
 
 import lbst
 
 
-MAGIC = 100
+MAGIC = 10
 INTEGER_MAX = 2**16
 
 
-figure(num=None, figsize=(8, 6), dpi=100)
-
-ax1 = subplot2grid((1, 1), (0, 0))
-
-
 ava = dict()
-ava["kvcount"] = list(range(1, 21))
+ava["kvcount"] = [1000]
 ava["dict"] = []
 ava["lbst"] = []
 ava["speedup"] = []
@@ -71,12 +65,12 @@ BENCHMARKS = (
 
 # warmup
 
-# print('warmup')
-# for name, func in BENCHMARKS:
-#     for _ in range(MAGIC):
-#         values = [randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(100)]
-#         print(name, timeit(func, values))
-#
+print('warmup')
+for name, func in BENCHMARKS:
+    for _ in range(MAGIC):
+        values = [randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(100)]
+        print(name, timeit(func, values))
+
 # benchmarks
 
 print('benchmarks')
@@ -94,11 +88,4 @@ for kvcount in ava["kvcount"]:
 
 for d, l in zip(ava['dict'], ava['lbst']):
     ava["speedup"].append(d/l)
-
-
-plot(ava['kvcount'], ava['speedup'], '-', label="speedup")
-# plot(ava['kvcount'], ava['lbst'], '^', label="lbst", linewidth=2)
-# legend(loc='upper left', fancybox=True, shadow=True, prop=dict(size=10))
-grid(True, which="both", linestyle="dotted")
-# ylabel("seconds")
-savefig("benchmarks.png")
+print(average(ava['speedup']))

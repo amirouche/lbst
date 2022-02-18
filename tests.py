@@ -8,7 +8,7 @@ def test_mic():
     assert lbst._mic()
 
 
-MAGIC = 100
+MAGIC = 50
 TREE_MAX_SIZE = random.randint(MAGIC, MAGIC * 100)
 INTEGER_MAX = random.randint(MAGIC, MAGIC * 10_000)
 
@@ -131,11 +131,11 @@ def test_cursor_previous():
         lbst.cursor_seek(cursor, end)
         assert lbst.cursor_key(cursor) == values[len(values) - 1]
 
-        for index in range(len(values) - 1, -1):
-            lbst.cursor_next(cursor)
+        for index in range(len(values) - 2, -1, -1):
+            lbst.cursor_previous(cursor)
             assert lbst.cursor_key(cursor) == values[index]
 
-        assert not lbst.cursor_next(cursor)
+        assert not lbst.cursor_previous(cursor)
 
 
 def test_delete():

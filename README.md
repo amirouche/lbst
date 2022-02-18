@@ -1,11 +1,28 @@
-# Immutable Log-Balanced Search Tree
+# lbst - Immutable Log-Balanced Search Tree
 
-**prototype:** early wall-clock time benchmarks show that this
-datastructure becomes interesting with PyPy 3.7 and more than 200
-key-value pairs. With CPython, in so far, it is never faster to use
-LBST, and you can have your way with builtin `dict` and copies.
+**prototype:** With CPython, in so far, it is faster to use LBST with
+1000+ items. wall-clock time benchmarks show that this datastructure
+becomes interesting with PyPy 3.7 with 100+ items.
 
 ![pink sakura tree at daytime](https://images.unsplash.com/photo-1515863149848-223cbed59017?w=1024&q=80)
+
+## Benchmarks
+
+Higher is better, less than one means copying is faster.
+
+### Small number of items = 20
+
+```
+cpython: ▇▇▇▇▇▇▇ 0.039
+pypy   : ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 0.262
+```
+
+### Large number of items = 1000
+
+```
+cpython: ▇▇ 0.9489
+pypy   : ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 20.15
+```
 
 ## Kesako a Log-Balanced Search Tree?
 
@@ -89,11 +106,11 @@ Return a tree based on `tree` where `key` is not present.
 
 Return the size of `tree`.
 
-## `lbst.min(tree)`
+## `lbst.start(tree)`
 
 Return the smallest key present in `tree`.
 
-## `lbst.max(tree)`
+## `lbst.end(tree)`
 
 Return the biggest key present in `tree`.
 
