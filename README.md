@@ -8,7 +8,7 @@ becomes interesting with PyPy 3.7 with 100+ items.
 
 ## Benchmarks
 
-Higher is better, less than one means copying is faster.
+**Higher is better, less than one means copying is faster.**
 
 ### Small number of items = 20
 
