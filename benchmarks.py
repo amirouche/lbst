@@ -5,7 +5,7 @@ import time
 import lbst
 
 
-MAGIC = 10
+MAGIC = 100
 INTEGER_MAX = 2**16
 
 
@@ -15,7 +15,7 @@ ax1 = subplot2grid((1, 1), (0, 0))
 
 
 ava = dict()
-ava["kvcount"] = [10, 50, 100, 250, 500, 750, 1_000]
+ava["kvcount"] = list(range(1, 21))
 ava["dict"] = []
 ava["lbst"] = []
 ava["speedup"] = []
@@ -71,12 +71,12 @@ BENCHMARKS = (
 
 # warmup
 
-print('warmup')
-for name, func in BENCHMARKS:
-    for _ in range(MAGIC):
-        values = [randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(1_000)]
-        print(name, timeit(func, values))
-
+# print('warmup')
+# for name, func in BENCHMARKS:
+#     for _ in range(MAGIC):
+#         values = [randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(100)]
+#         print(name, timeit(func, values))
+#
 # benchmarks
 
 print('benchmarks')
@@ -93,7 +93,7 @@ for kvcount in ava["kvcount"]:
         print(kvcount, name, timing)
 
 for d, l in zip(ava['dict'], ava['lbst']):
-    ava["speedup"].append((l - d) / d)
+    ava["speedup"].append(d/l)
 
 
 plot(ava['kvcount'], ava['speedup'], '-', label="speedup")
