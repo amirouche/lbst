@@ -13,16 +13,12 @@ LBST = namedtuple("LBST", "root")
 Node = namedtuple("Node", "key value size left right")
 
 
-NODE_NULL = Node(None, None, 0, None, None)
+_NODE_NULL = Node(None, None, 0, None, None)
 
 
 # immutable filo
 
-FILO_NULL = object()
-
-
-def _make_filo():
-    return FILO_NULL
+_FILO_NULL = object()
 
 
 def _filo_push(filo, object):
@@ -41,7 +37,7 @@ def _filo_pop(filo):
 
 
 def make():
-    return LBST(NODE_NULL)
+    return LBST(_NODE_NULL)
 
 
 def _is_less(a, b):
@@ -113,8 +109,8 @@ def _node_rebalance(key, value, left, right):
 
 
 def _node_set(node, key, value):
-    if node is NODE_NULL:
-        return Node(key, value, 1, NODE_NULL, NODE_NULL)
+    if node is _NODE_NULL:
+        return Node(key, value, 1, _NODE_NULL, _NODE_NULL)
 
     if key < node.key:
         # The given KEY is less that node.key, recurse left side.
@@ -141,26 +137,26 @@ def _node_set(node, key, value):
 
 
 def set(lbst, key, value):
-    if lbst.root is NODE_NULL:
-        return LBST(Node(key, value, 1, NODE_NULL, NODE_NULL))
+    if lbst.root is _NODE_NULL:
+        return LBST(Node(key, value, 1, _NODE_NULL, _NODE_NULL))
 
     return LBST(_node_set(lbst.root, key, value))
 
 
 def _node_delete_min(node):
-    assert node is not NODE_NULL
+    assert node is not _NODE_NULL
 
-    if node.left is NODE_NULL:
+    if node.left is _NODE_NULL:
         return node.right
 
     return _node_join(node.key, node.value, _node_delete_min(node.left), node.right)
 
 
 def _node_concat2(node, other):
-    if node is NODE_NULL:
+    if node is _NODE_NULL:
         return other
 
-    if other is NODE_NULL:
+    if other is _NODE_NULL:
         return node
 
     min = _node_min(other)
@@ -186,7 +182,7 @@ def delete(lbst, key):
 
 
 def _node_is_balanced(node):
-    if node is NODE_NULL:
+    if node is _NODE_NULL:
         return True
 
     out = (
@@ -207,14 +203,14 @@ def _node_min(node):
     parent = node
     node = node.left
     while True:
-        if node is NODE_NULL:
+        if node is _NODE_NULL:
             break
         parent = node
         node = node.left
     return parent
 
 
-def min(lbst):
+def begin(lbst):
     # The minimal key is the left-most node
     if lbst.root.size == 0:
         raise RuntimeError("The tree is empty!")
@@ -223,7 +219,7 @@ def min(lbst):
     return node.key
 
 
-def max(lbst):
+def end(lbst):
     # The maximum key is the right-most node
     if lbst.root.size == 0:
         raise RuntimeError("The tree is empty!")
@@ -232,7 +228,7 @@ def max(lbst):
     node = lbst.root.right
 
     while True:
-        if node is NODE_NULL:
+        if node is _NODE_NULL:
             break
         parent = node
         node = node.right
@@ -244,10 +240,9 @@ Cursor = namedtuple("Cursor", "stack")
 
 
 def cursor(lbst):
-    filo = _make_filo()
-    filo = _filo_push(filo, lbst.root)
-    # XXX: boxing the filo, to be able to replace it. That is why
-    # cursor is stateful.
+    filo = _filo_push(_FILO_NULL, lbst.root)
+    # XXX: boxing the filo with list, to be able to replace it. That
+    # is why / how cursor is stateful even if it use a namedtuple.
     return Cursor([filo])
 
 
@@ -256,24 +251,82 @@ def cursor_clone(cursor):
 
 
 def cursor_seek(cursor, key):
+    filo = cursor.stack[0]
+    if filo is _FILO_NULL:
+        return None
+
     while True:
-        node = _filo_peek(cursor.stack[0])
+        node, rest = _filo_pop(filo)
+
         if key < node.key:
-            filo = cursor.stack[0]
-            if cursor_previous(cursor):
-                continue
+
+            if rest is _FILO_NULL:
+                if node.left is _NODE_NULL:
+                    cursor.stack[0] = filo
+                    return 1
+                else:
+                    filo = _filo_push(filo, node.left)
+                    continue
+
+            parent = _filo_peek(rest)
+
+            if parent.right is node:
+                if parent.key < key:
+                    if node.left is _NODE_NULL:
+                        cursor.stack[0] = filo
+                        return 1
+                    else:
+                        filo = _filo_push(filo, node.left)
+                        continue
+                else:
+                    parent, filo = _filo_pop(filo)
+                    continue
             else:
-                cursor.stack[0] = filo
-                return 1
-        elif node.key < key:
-            filo = cursor.stack[0]
-            if cursor_next(cursor):
-                continue
+                if node.left is _NODE_NULL:
+                    cursor.stack[0] = filo
+                    return 1
+                else:
+                    filo = _filo_push(filo, node.left)
+                    continue
+
+        if node.key < key:
+
+            if rest is _FILO_NULL:
+                if node.right is _NODE_NULL:
+                    cursor.stack[0] = filo
+                    return -1
+                else:
+                    filo = _filo_push(filo, node.right)
+                    continue
+
+            parent = _filo_peek(rest)
+
+            if parent.left is node:
+                if key < parent.key:
+                    if node.right is _NODE_NULL:
+                        cursor.stack[0] = filo
+                        return -1
+                    else:
+                        filo = _filo_push(filo, node.right)
+                        continue
+                else:
+                    parent, filo = _filo_pop(filo)
+                    continue
             else:
-                cursor.stack[0] = filo
-                return -1
-        else:
-            return 0
+                if node.right is _NODE_NULL:
+                    cursor.stack[0] = filo
+                    return -1
+                else:
+                    filo = _filo_push(filo, node.right)
+                    continue
+
+
+        # else key == node.key
+        cursor.stack[0] = filo
+        return 0
+
+
+
 
 
 def get(lbst, key, default=None):
@@ -286,25 +339,25 @@ def get(lbst, key, default=None):
 
 
 def cursor_key(cursor):
-    assert cursor.stack[0] is not FILO_NULL
+    assert cursor.stack[0] is not _FILO_NULL
 
     return cursor.stack[0][0].key
 
 
 def cursor_value(cursor):
-    assert cursor.stack[0] is not FILO_NULL
+    assert cursor.stack[0] is not _FILO_NULL
 
     return cursor.stack[0][0].value
 
 
 def cursor_next(cursor):
-    assert cursor.stack[0] is not FILO_NULL
+    assert cursor.stack[0] is not _FILO_NULL
 
     node = _filo_peek(cursor.stack[0])
 
-    if node.right is NODE_NULL:
+    if node.right is _NODE_NULL:
         node, filo = _filo_pop(cursor.stack[0])
-        while filo is not FILO_NULL:
+        while filo is not _FILO_NULL:
             parent, rest = _filo_pop(filo)
 
             if parent.left is node:
@@ -318,10 +371,10 @@ def cursor_next(cursor):
         # Then the next value is the minimal value in node.right.
 
         # Go through the sub-tree always turning left until a
-        # NODE_NULL is found.
+        # _NODE_NULL is found.
         node = node.right
         filo = _filo_push(cursor.stack[0], node)
-        while node.left is not NODE_NULL:
+        while node.left is not _NODE_NULL:
             node = node.left
             filo = _filo_push(filo, node)
         cursor.stack[0] = filo
@@ -329,14 +382,14 @@ def cursor_next(cursor):
 
 
 def cursor_previous(cursor):
-    assert cursor.stack[0] is not FILO_NULL
+    assert cursor.stack[0] is not _FILO_NULL
 
     node = _filo_peek(cursor.stack[0])
 
-    if node.left is NODE_NULL:
+    if node.left is _NODE_NULL:
         node, filo = _filo_pop(cursor.stack[0])
 
-        while filo is not FILO_NULL:
+        while filo is not _FILO_NULL:
             parent, rest = _filo_pop(filo)
 
             if parent.right is node:
@@ -349,7 +402,7 @@ def cursor_previous(cursor):
     else:
         node = node.left
         filo = _filo_push(cursor.stack[0], node)
-        while node.right is not NODE_NULL:
+        while node.right is not _NODE_NULL:
             node = node.right
             filo = _filo_push(filo, node)
         cursor.stack[0] = filo
@@ -357,12 +410,13 @@ def cursor_previous(cursor):
 
 
 def _node_to_dict(node, out):
-    if node.left is not NODE_NULL:
+    # TODO: use a lbst.cursor instead of recursion.
+    if node.left is not _NODE_NULL:
         _node_to_dict(node.left, out)
 
     out[node.key] = node.value
 
-    if node.right is not NODE_NULL:
+    if node.right is not _NODE_NULL:
         _node_to_dict(node.right, out)
 
 

@@ -8,8 +8,8 @@ def test_mic():
     assert lbst._mic()
 
 
-MAGIC = 100
-TREE_MAX_SIZE = 10000  # random.randint(MAGIC, MAGIC * 100)
+MAGIC = 50
+TREE_MAX_SIZE = random.randint(MAGIC, MAGIC * 100)
 INTEGER_MAX = random.randint(MAGIC, MAGIC * 10_000)
 
 
@@ -47,7 +47,20 @@ def test_balanced_and_sorted_random_trees_of_floats():
         assert out == expected
 
 
-def test_min():
+def test_get():
+    for _ in range(MAGIC):
+        values = [
+            random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)
+        ]
+        tree = lbst.make()
+        for value in values:
+            tree = lbst.set(tree, value, value)
+
+        assert lbst.get(tree, values[0]) == values[0]
+
+
+
+def test_begin():
     for _ in range(MAGIC):
         values = [
             random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)
@@ -58,10 +71,10 @@ def test_min():
         for value in values:
             tree = lbst.set(tree, value, value)
 
-        assert lbst.min(tree) == values[0]
+        assert lbst.begin(tree) == values[0]
 
 
-def test_max():
+def test_end():
     for _ in range(MAGIC):
         values = [
             random.randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(TREE_MAX_SIZE)
@@ -72,7 +85,7 @@ def test_max():
         for value in values:
             tree = lbst.set(tree, value, value)
 
-        assert lbst.max(tree) == values[-1]
+        assert lbst.end(tree) == values[-1]
 
 
 def test_cursor_next():
@@ -86,11 +99,11 @@ def test_cursor_next():
         for value in values:
             tree = lbst.set(tree, value, value)
 
-        min = lbst.min(tree)
-        assert min == values[0]
+        begin = lbst.begin(tree)
+        assert begin == values[0]
 
         cursor = lbst.cursor(tree)
-        lbst.cursor_seek(cursor, min)
+        lbst.cursor_seek(cursor, begin)
         assert lbst.cursor_key(cursor) == values[0]
 
         for index in range(1, len(values)):
@@ -111,18 +124,18 @@ def test_cursor_previous():
         for value in values:
             tree = lbst.set(tree, value, value)
 
-        max = lbst.max(tree)
-        assert max == values[len(values) - 1]
+        end = lbst.end(tree)
+        assert end == values[len(values) - 1]
 
         cursor = lbst.cursor(tree)
-        lbst.cursor_seek(cursor, max)
+        lbst.cursor_seek(cursor, end)
         assert lbst.cursor_key(cursor) == values[len(values) - 1]
 
-        for index in range(len(values) - 1, -1):
-            lbst.cursor_next(cursor)
+        for index in range(len(values) - 2, -1, -1):
+            lbst.cursor_previous(cursor)
             assert lbst.cursor_key(cursor) == values[index]
 
-        assert not lbst.cursor_next(cursor)
+        assert not lbst.cursor_previous(cursor)
 
 
 def test_delete():
