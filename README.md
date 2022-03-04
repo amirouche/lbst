@@ -4,7 +4,7 @@
 1000+ items. wall-clock time benchmarks show that this datastructure
 becomes interesting with PyPy 3.7 with 100+ items.
 
-![pink sakura tree at daytime](https://images.unsplash.com/photo-1515863149848-223cbed59017?w=1024&q=80)
+![energy boost](https://raw.githubusercontent.com/amirouche/lbst/main/konstantin-d-simpleenergybeamgif.gif)
 
 ## Benchmarks
 
@@ -29,7 +29,7 @@ pypy   : ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇�
 - A search tree is a dictionary that preserves ordering according to
   an user specified function, also known under the name sorted
   dictionary.
-  
+
 - In the original description of the algorithm, LBST used a logarithm
   function to decide how to balance the tree.
 
@@ -44,7 +44,7 @@ keep around previous versions of the data to have an history to ease
 debugging or to implement an *undo* feature such as in editors;
 another way immutable datastructures can be put to good use is to keep
 the data consistent in a concurrent or parallel programming setting,
-while a flow of executition, the writer, produce a new version of the
+while a flow of execution, the writer, produce a new version of the
 datastructure, the readers still have access the previous version of
 the truth without requiring readers to wait for the writer to finish
 achieving single-writer / multiple readers without locks.
@@ -58,10 +58,10 @@ immutable datastructure.
 
 Python builtin `dict` are sorted according to the time of insertion,
 if `"z"` is added to a dictionary first, then `"a"` is added, then the
-dictionary will have the keys in the following order `["z", ...,
-"a"]`. That is not always the best approach performance-wise.
+dictionary will have the keys in the following order `["z", ..., "a"
+...]`. That is not always the best approach performance-wise.
 
-The following kind of code is a hint that you may use LBST:
+The following kind of code is a hint that you may use `leboost.idict`:
 
 ```python
 frob = dict()
