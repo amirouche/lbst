@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "lbst"
-version = "0.2.0"
-description = "Immutable Log-Balanced Search Tree"
+name = "leboost"
+version = "0.3.0"
+description = "Immutable sorted dictionary, and an immutable list"
 authors = ["Amirouche <amirouche@hyper.dev>"]
 license = "CC0"
 readme = "README.md"
-homepage = "https://github.com/amirouche/lbst"
+homepage = "https://github.com/amirouche/leboost"
 
 [tool.poetry.dependencies]
 python = "^3.7"

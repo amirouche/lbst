@@ -6,24 +6,6 @@ becomes interesting with PyPy 3.7 with 100+ items.
 
 ![energy boost](https://raw.githubusercontent.com/amirouche/lbst/main/konstantin-d-simpleenergybeamgif.gif)
 
-## Benchmarks
-
-**Higher is better, less than one means copying is faster.**
-
-### Small number of items = 20
-
-```
-cpython: ▇▇▇▇▇▇▇ 0.039
-pypy   : ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 0.262
-```
-
-### Large number of items = 1000
-
-```
-cpython: ▇▇ 0.9489
-pypy   : ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 20.15
-```
-
 ## Kesako a Log-Balanced Search Tree?
 
 - A search tree is a dictionary that preserves ordering according to
@@ -81,50 +63,72 @@ dictionary that is sorted at construction time, save a few cycles by
 avoding a reconstruction, duplicated effort, copies, and keep the
 overall wall-clock time under control.
 
-## `lbst.make()`
+## Benchmarks
+
+**Higher is better, less than one means copying is faster.**
+
+### Small number of items = 20
+
+```
+cpython: ▇▇▇▇▇▇▇ 0.039
+pypy   : ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 0.262
+```
+
+### Large number of items = 1000
+
+```
+cpython: ▇▇ 0.9489
+pypy   : ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 20.15
+```
+
+## `from leboost import lbst`
+
+Low level log-balanced search tree.
+
+### `lbst.make()`
 
 Return an immutable search tree, ordered according to Python builtin
 rich comparison, that can be overriden in user created types with the
 method called
 [`__lt__`](https://docs.python.org/3/reference/datamodel.html#object.__lt__).
 
-## `lbst.set(tree, key, value)`
+### `lbst.set(tree, key, value)`
 
 Return a tree based on `tree` where `key` is associated with
 `value`.
 
-## `lbst.get(tree, key, default=None)`
+### `lbst.get(tree, key, default=None)`
 
 Return the value associated with `key` in `tree`. If `key` is not
 present in `tree`, returns `default`.
 
-## `lbst.delete(tree, key)`
+### `lbst.delete(tree, key)`
 
 Return a tree based on `tree` where `key` is not present.
 
-## `lbst.size(tree)`
+### `lbst.size(tree)`
 
 Return the size of `tree`.
 
-## `lbst.start(tree)`
+### `lbst.start(tree)`
 
 Return the smallest key present in `tree`.
 
-## `lbst.end(tree)`
+### `lbst.end(tree)`
 
 Return the biggest key present in `tree`.
 
-## `lbst.cursor(tree)`
+### `lbst.cursor(tree)`
 
 Return a cursor for `tree`. The initial position is not specified. A
 cursor is stateful: its position is changed / mutated in-place.
 
-## `lbst.cursor_clone(cursor)`
+### `lbst.cursor_clone(cursor)`
 
 Return a cursor at the same position as `cursor` that does not share
 state with `cursor`.
 
-## `lbst.cursor_seek(cursor, key)`
+### `lbst.cursor_seek(cursor, key)`
 
 Position `cursor` near `key`. If `key` is present in the tree
 associated with `cursor`, then the cursor will be exactly positioned
@@ -140,29 +144,29 @@ In other words, `lbst.cursor_seek`:
 - Return `0`, then `cursor` is **on** `key`;
 - Return `1`, then `cursor` is after `key`.
 
-## `lbst.cursor_key(cursor)`
+### `lbst.cursor_key(cursor)`
 
 Return the key associated with `cursor`.
 
-## `lbst.cursor_value(cursor)`
+### `lbst.cursor_value(cursor)`
 
 Return the value associated with `cursor`.
 
-## `lbst.cursor_next(cursor)`
+### `lbst.cursor_next(cursor)`
 
 Move `cursor` to the next position, that is a bigger key that is just
 after the current key. Returns `False` if `cursor` reached the end of
 the key space *i.e.* there is no next key. Otherwise, it returns
 `True`.
 
-## `lbst.cursor_previous(cursor)`
+### `lbst.cursor_previous(cursor)`
 
 Move `cursor` to the previous position, that is a smaller key that is
-just before the current key. Returns `False` if `cursor` reached the start of
-the key space *i.e.* there is no previous key. Otherwise, it returns
-`True`.
+just before the current key. Returns `False` if `cursor` reached the
+start of the key space *i.e.* there is no previous key. Otherwise, it
+returns `True`.
 
-## `lbst.to_dict(tree)`
+### `lbst.to_dict(tree)`
 
 Return a `dict` representation of `tree`. The returned `dict` has the
 keys in the same order as `tree`.

@@ -8,12 +8,12 @@ from collections import namedtuple
 # ref: https://scholar.google.fr/scholar?cluster=16806430159882137269
 #
 
-LBST = namedtuple("LBST", "root")
+_LBST = namedtuple("_LBST", "root")
 
-Node = namedtuple("Node", "key value size left right")
+_Node = namedtuple("_Node", "key value size left right")
 
 
-_NODE_NULL = Node(None, None, 0, None, None)
+_NODE_NULL = _Node(None, None, 0, None, None)
 
 
 # immutable filo
@@ -37,7 +37,7 @@ def _filo_pop(filo):
 
 
 def make():
-    return LBST(_NODE_NULL)
+    return _LBST(_NODE_NULL)
 
 
 def _is_less(a, b):
@@ -55,7 +55,7 @@ def _is_too_big(a, b):
 
 
 def _node_join(key, value, left, right):
-    return Node(key, value, left.size + right.size + 1, left, right)
+    return _Node(key, value, left.size + right.size + 1, left, right)
 
 
 def _node_single_left_rotation(key, value, left, right):
@@ -105,12 +105,12 @@ def _node_rebalance(key, value, left, right):
 
     # both sides are the same size, join the two trees with a top
     # level node.
-    return Node(key, value, left.size + right.size + 1, left, right)
+    return _Node(key, value, left.size + right.size + 1, left, right)
 
 
 def _node_set(node, key, value):
     if node is _NODE_NULL:
-        return Node(key, value, 1, _NODE_NULL, _NODE_NULL)
+        return _Node(key, value, 1, _NODE_NULL, _NODE_NULL)
 
     if key < node.key:
         # The given KEY is less that node.key, recurse left side.
@@ -133,14 +133,14 @@ def _node_set(node, key, value):
     # otherwise, `key` is equal to `node.key`, create a new node with
     # the given `value`.
 
-    return Node(key, value, node.left.size + node.right.size + 1, node.left, node.right)
+    return _Node(key, value, node.left.size + node.right.size + 1, node.left, node.right)
 
 
 def set(lbst, key, value):
     if lbst.root is _NODE_NULL:
-        return LBST(Node(key, value, 1, _NODE_NULL, _NODE_NULL))
+        return _LBST(_Node(key, value, 1, _NODE_NULL, _NODE_NULL))
 
-    return LBST(_node_set(lbst.root, key, value))
+    return _LBST(_node_set(lbst.root, key, value))
 
 
 def _node_delete_min(node):
@@ -178,7 +178,7 @@ def _node_delete(node, key):
 
 
 def delete(lbst, key):
-    return LBST(_node_delete(lbst.root, key))
+    return _LBST(_node_delete(lbst.root, key))
 
 
 def _node_is_balanced(node):

@@ -1,14 +1,14 @@
 import time
 import operator
 import random
-import lbst
+from leboost import lbst
 
 
 def test_mic():
     assert lbst._mic()
 
 
-MAGIC = 50
+MAGIC = 100
 TREE_MAX_SIZE = random.randint(MAGIC, MAGIC * 100)
 INTEGER_MAX = random.randint(MAGIC, MAGIC * 10_000)
 

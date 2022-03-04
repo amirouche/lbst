@@ -7,7 +7,7 @@ init: ## Use the system python3 to create a virtual environment with poetry (req
 	POETRY_VIRTUALENVS_PATH=venv poetry shell
 
 check: ## Run tests, and security audit.
-	POETRY_VIRTUALENVS_PATH=venv poetry run pytest -vvv --capture=no --cov-report=term --cov-report=html --cov=lbst --numprocesses=auto tests.py
+	POETRY_VIRTUALENVS_PATH=venv poetry run pytest -vvv --capture=no --cov-report=term --cov-report=html --cov=leboost --numprocesses=auto tests.py
 	# XXX: ignore the use of assert B101, and the non-cryptographic quality of random B311
 	POETRY_VIRTUALENVS_PATH=venv poetry run bandit --skip=B101,B311 lbst.py
 
