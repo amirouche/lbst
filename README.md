@@ -1,4 +1,6 @@
-# lbst - Immutable Log-Balanced Search Tree
+# leboost
+
+**Immutable Datastructures based on Log-Balanced Search Tree**
 
 **prototype:** With CPython, in so far, it is faster to use LBST with
 1000+ items. wall-clock time benchmarks show that this datastructure
