@@ -1,15 +1,17 @@
+import struct
+from random import choice
 from random import randint
 import time
 
 import lbst
 
 
-MAGIC = 10
-INTEGER_MAX = 2**16
+MAGIC = 20
+INTEGER_MAX = 2**64
 
 
 ava = dict()
-ava["kvcount"] = [1000]
+ava["kvcount"] = [10, 20, 30, 40, 50, 100, 500, 1000]
 ava["dict"] = []
 ava["lbst"] = []
 ava["speedup"] = []
@@ -31,29 +33,29 @@ def timeit(func, *args, **kwargs):
 
 def benchmark_naive_dict(values):
     out = dict()
-    for value in values:
+    for k, v in values:
         out = dict(out)
-        out[value] = value
+        out[k] = v
         out = sorted(out.items())
         out = dict(out)
 
     accumulator = 0
     for _ in range(MAGIC):
-        for value in values:
-            some = out[value]
+        for k, _ in values:
+            some = out[k]
             accumulator += some
     return accumulator
 
 
 def benchmark_lbst(values):
     out = lbst.make()
-    for value in values:
-        out = lbst.set(out, value, value)
+    for k, v in values:
+        out = lbst.set(out, k, v)
 
     accumulator = 0
     for _ in range(MAGIC):
-        for value in values:
-            some = lbst.get(out, value)
+        for k, v in values:
+            some = lbst.get(out, k)
             accumulator += some
     return accumulator
 
@@ -63,19 +65,20 @@ BENCHMARKS = (
     ('lbst', benchmark_lbst),
 )
 
-# warmup
-
 print('warmup')
 for name, func in BENCHMARKS:
     for _ in range(MAGIC):
-        values = [randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(100)]
-        print(name, timeit(func, values))
+        v = randint(0, INTEGER_MAX)
+        values = [(struct.pack('<Q', v), v) for _ in range(100)]
+        print(choice('_.oO0`'))
+        timeit(func, values)
 
 # benchmarks
 
 print('benchmarks')
 for kvcount in ava["kvcount"]:
-    values = [randint(-INTEGER_MAX, INTEGER_MAX) for _ in range(kvcount)]
+    v = randint(0, INTEGER_MAX)
+    values = [(struct.pack('<Q', v), v) for _ in range(kvcount)]
     print(kvcount, 'start')
     for name, func in BENCHMARKS:
         timings = []
@@ -88,4 +91,7 @@ for kvcount in ava["kvcount"]:
 
 for d, l in zip(ava['dict'], ava['lbst']):
     ava["speedup"].append(d/l)
-print(average(ava['speedup']))
+
+print("Speedup dict vs. lbst, bigger than one is faster")
+for count, speedup in zip(ava['kvcount'], ava['speedup']):
+    print(count, speedup)
