@@ -2,12 +2,12 @@
 
   (export make-lbst
           lbst-set
-          ;; lbst-ref
-          ;; lbst-delete
+          lbst-ref
+          lbst-delete
           lbst-size
           lbst-start
           lbst-end
-          ;; lbst-search
+          lbst-search
           lbst-next
           lbst-previous
 
@@ -21,6 +21,11 @@
           check~lbst-006
           check~lbst-007
           check~lbst-008
+          check~lbst-009
+          check~lbst-010
+          check~lbst-011
+          check~lbst-012
+          check~lbst-013
 
           )
 
@@ -52,7 +57,6 @@
       (if (fxzero? n)
           0
           (fx+ (exact (floor (/ (log n) (log 2)))) 1))))
-
 
   (define lbst<?
     (lambda (a b)
@@ -287,6 +291,7 @@
                 ;; There is nothing in the stack, hence there is no
                 ;; previous key
                 #f
+                ;; TODO
                 (if (not (bytevector=? (lbst-key (lbst-right (car stack))) (lbst-key lbst)))
                     (loop (car stack) (cdr stack))
                     (let ((previous (car stack)))
@@ -304,6 +309,129 @@
         (if (not lbst)
             out
             (loop (lbst-previous lbst) (cons (cons (lbst-key lbst) (lbst-value lbst)) out))))))
+
+  (define (make-lbst** lbst stack)
+    (make-lbst* (lbst-key lbst)
+                (lbst-value lbst)
+                (lbst-size lbst)
+                (lbst-left lbst)
+                (lbst-right lbst)
+                stack))
+
+  (define lbst-search
+    (lambda (lbst key)
+      (if (lbst-null? lbst)
+          (values #f lbst-null)
+          (let loop ((lbst lbst)
+                     (stack (lbst-stack lbst)))
+            (case (bytevector-compare key (lbst-key lbst))
+              (smaller (if (null? stack)
+                           (if (lbst-null? (lbst-left lbst))
+                               (values 'smaller (make-lbst** lbst stack))
+                               (loop (lbst-left lbst) (cons lbst stack)))
+
+                           (let ((parent (car stack)))
+                             (if (bytevector=? (lbst-key (lbst-right parent)) (lbst-key lbst))
+                                 (if (eq? (bytevector-compare (lbst-key parent) key) 'smaller)
+                                     (if (lbst-null? (lbst-left lbst))
+                                         (values 'bigger (make-lbst** lbst stack))
+                                         (loop (lbst-left lbst) (cons lbst stack)))
+                                     (loop (car stack) (cdr stack)))
+                                 (if (lbst-null? (lbst-left lbst))
+                                     (values 'bigger (make-lbst** lbst stack))
+                                     (loop (lbst-left lbst) (cons lbst stack)))))))
+              (bigger (if (null? stack)
+
+                          (if (lbst-null? (lbst-right lbst))
+                              (values 'smaller (make-lbst** lbst stack))
+                              (loop (lbst-right lbst) (cons lbst stack)))
+
+                          (let ((parent (car stack)))
+                            (if (bytevector=? (lbst-key (lbst-left parent)) (lbst-key lbst))
+                                (if (eq? (bytevector-compare key (lbst-key parent)) 'bigger)
+                                    (if (lbst-null? (lbst-right lbst))
+                                        (values 'smaller (make-lbst** lbst stack))
+                                        (loop (lbst-right lbst) (cons lbst stack)))
+                                    (loop (car stack) (cdr stack)))
+                                (if (lbst-null? (lbst-right lbst))
+                                    (values 'smaller (make-lbst** lbst stack))
+                                    (loop (lbst-right lbst) (cons lbst stack)))))))
+              (else (values 'equal (make-lbst** lbst stack))))))))
+
+  (define lbst-ref
+    (lambda (lbst key)
+      (call-with-values (lambda () (lbst-search lbst key))
+        (lambda (position lbst)
+          (if (eq? position 'equal)
+              lbst
+              #f)))))
+
+  (define lbst-delete
+    (lambda (lbst key)
+
+      (define lbst-delete-min
+        (lambda (lbst)
+          (assert (not (lbst-null? lbst)))
+          (if (lbst-null? (lbst-left lbst))
+              (lbst-right lbst)
+              (lbst-rebalance (lbst-key lbst-key)
+                              (lbst-value lbst-value)
+                              (lbst-delete-min (lbst-left lbst))
+                              (lbst-right lbst)))))
+
+      (define lbst-concat3
+        (lambda (key value left right)
+          (if (lbst-null? (lbst-left left))
+              (lbst-set right key value)
+              (if (lbst-null? (lbst-right left))
+                  (lbst-set left key value)
+                  (cond
+                   ((too-big? (lbst-size left) (lbst-size right))
+                    (lbst-rebalance (lbst-key right)
+                                    (lbst-value right)
+                                    left
+                                    (lbst-concat3 key
+                                                  value
+                                                  (lbst-left right)
+                                                  (lbst-right right))))
+                   ((too-big? (lbst-size right) (lbst-size left))
+                    (lbst-rebalance (lbst-key left)
+                                    (lbst-value left)
+                                    (lbst-concat3 key
+                                                  value
+                                                  (lbst-left left)
+                                                  (lbst-right left))
+                                    right))
+                   (else (lbst-rebalance key value left right)))))))
+
+      (define lbst-concat2
+        (lambda (lbst other)
+          (if (lbst-null? lbst)
+              other
+              (if (lbst-null? other)
+                  lbst
+                  (call-with-values (lambda () (lbst-search other #vu8()))
+                    (lambda (_ min)
+                      (lbst-concat3 (lbst-key lbst)
+                                    (lbst-value lbst)
+                                    lbst
+                                    (lbst-delete-min other))))))))
+
+
+      (if (lbst-null? lbst)
+          #f
+          (case (bytevector-compare key (lbst-key lbst))
+            (bigger (lbst-rebalance (lbst-key lbst)
+                                    (lbst-value lbst)
+                                    (lbst-left lbst)
+                                    (lbst-delete (lbst-right lbst) key)))
+            (smaller (lbst-rebalance (lbst-key lbst)
+                                     (lbst-value lbst)
+                                     (lbst-delete (lbst-left lbst) key)
+                                     (lbst-right lbst)))
+            (else (lbst-concat2 (lbst-left lbst) (lbst-right lbst)))))))
+
+
 
   (define pk
     (lambda args
@@ -396,4 +524,80 @@
                   (loop (lbst-next lbst) (cons (cons (lbst-key lbst) (lbst-value lbst)) out))))))
 
         (assert (equal? (reverse (lbst->alist/reversed lbst)) (lbst->alist lbst))))))
+
+  (define check~lbst-009
+    (lambda ()
+
+      (let* ((lbst (make-lbst))
+             (lbst (lbst-set lbst #vu8(42) 42))
+             (lbst (lbst-set lbst #vu8(13) 13))
+             (lbst (lbst-set lbst #vu8(14) 14))
+             (lbst (lbst-set lbst #vu8(101) 101)))
+
+        (let loop ((vs (list 13 14 42 101)))
+          (unless (null? vs)
+            (call-with-values (lambda () (lbst-search lbst (bytevector (car vs))))
+              (lambda (position lbst)
+                (assert (eq? position 'equal))
+                (assert (= (lbst-value lbst) (car vs)))
+                (loop (cdr vs)))))))))
+
+  (define check~lbst-010
+    (lambda ()
+
+      (let* ((lbst (make-lbst))
+             (lbst (lbst-set lbst #vu8(42) 42))
+             (lbst (lbst-set lbst #vu8(13) 13))
+             (lbst (lbst-set lbst #vu8(14) 14))
+             (lbst (lbst-set lbst #vu8(101) 101)))
+
+        (let loop ((vs (list (list 7 'bigger 13)
+                             (list 15 'bigger 42)
+                             (list 208 'smaller 101)
+                             (list 13 'equal 13))))
+          (unless (null? vs)
+            (call-with-values (lambda () (lbst-search lbst (bytevector (list-ref (car vs) 0))))
+              (lambda (position lbst)
+                (assert (eq? (list-ref (car vs) 1) position))
+                (assert (= (lbst-value lbst) (list-ref (car vs) 2)))
+                (loop (cdr vs)))))))))
+
+  (define check~lbst-011
+    (lambda ()
+      (let* ((lbst (make-lbst))
+             (lbst (lbst-set lbst #vu8(42) 42))
+             (lbst (lbst-set lbst #vu8(13) 13))
+             (lbst (lbst-set lbst #vu8(14) 14))
+             (lbst (lbst-set lbst #vu8(101) 101)))
+
+        (let loop ((vs (list 42 13 14 101)))
+          (unless (null? vs)
+            (assert (equal? (car vs) (lbst-value (lbst-ref lbst (bytevector (car vs))))))
+            (loop (cdr vs)))))))
+
+  (define check~lbst-012
+    (lambda ()
+      (let* ((lbst (make-lbst))
+             (lbst (lbst-set lbst #vu8(42) 42))
+             (lbst (lbst-set lbst #vu8(13) 13))
+             (lbst (lbst-set lbst #vu8(14) 14))
+             (lbst (lbst-set lbst #vu8(101) 101)))
+
+        (let loop ((vs (list 41 0 7 9 255)))
+          (unless (null? vs)
+            (assert (not (lbst-ref lbst (bytevector (car vs)))))
+            (loop (cdr vs)))))))
+
+  (define check~lbst-013
+    (lambda ()
+      (let* ((lbst (make-lbst))
+             (lbst (lbst-set lbst #vu8(42) 42))
+             (lbst (lbst-set lbst #vu8(13) 13))
+             (lbst (lbst-set lbst #vu8(14) 14))
+             (lbst (lbst-set lbst #vu8(101) 101)))
+
+        (let ((new (lbst-delete lbst #vu8(42))))
+          (assert (equal? (lbst->alist new)
+                          '((#vu8(13) . 13) (#vu8(14) . 14) (#vu8(101) . 101))))))))
+
   )
