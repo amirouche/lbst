@@ -20,6 +20,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
+          # Fail way to often
           # - windows-latest
     runs-on:  ${{ matrix.os }}
     name: ${{ matrix.python-version }} on ${{ matrix.os }}
@@ -30,6 +31,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - run: pip install poetry
-      - run: poetry install --no-ansi
-      - run: poetry run pytest --exitfirst --no-header --tb=no --assert=plain --numprocesses=auto tests.py
+      - run: cd python && pip install poetry
+      - run: cd python && poetry install --no-ansi
+      - run: cd python && poetry run pytest --exitfirst --no-header --tb=no --assert=plain --numprocesses=auto tests.py
