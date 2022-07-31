@@ -10,6 +10,8 @@
           lbst-search
           lbst-next
           lbst-previous
+          lbst-key
+          lbst-value
 
           lbst->alist
 
@@ -26,7 +28,8 @@
           check~lbst-011
           check~lbst-012
           check~lbst-013
-
+          check~lbst-014
+          check~lbst-015
           )
 
   (import (chezscheme) (r999))
@@ -52,11 +55,7 @@
     (lambda (lbst)
       (eq? lbst lbst-null)))
 
-  (define bit-length
-    (lambda (n)
-      (if (fxzero? n)
-          0
-          (fx+ (exact (floor (/ (log n) (log 2)))) 1))))
+  (define bit-length fxlength)
 
   (define lbst<?
     (lambda (a b)
@@ -120,6 +119,7 @@
                             (lbst-right (lbst-right left))
                             right))))
 
+
   (define lbst-rebalance
     (lambda (key value left right)
       (if (too-big? (lbst-size left) (lbst-size right))
@@ -131,7 +131,7 @@
               (if (not (lbst<? (lbst-size (lbst-left left))
                                (lbst-size (lbst-right left))))
                   (lbst-single-right-rotation key value left right)
-                  (lbst-double-right-rotation key value left right))
+                                      (lbst-double-right-rotation key value left right))
               ;; otherwise join both trees with a top level node
               (lbst-join key value left right)))))
 
@@ -156,7 +156,7 @@
             (let ((delta (fx- (bytevector-u8-ref bytevector index)
                               (bytevector-u8-ref other index))))
               (if (fxzero? delta)
-                  (loop (+ 1 index))
+                  (loop (fx+ 1 index))
                   (if (fxnegative? delta)
                       'smaller
                       'bigger)))))))
@@ -218,89 +218,57 @@
 
   (define lbst-next
     (lambda (lbst)
-      ;; There is two cases:
-      ;;
-      ;; - LBST has a right child, then the next key is the smallest
-      ;; key in the right subtree.
-      ;;
-      ;; - LBST has no right subtree, then *if* there is a next key,
-      ;; it is the first parent lbst from the stack that has LBST or
-      ;; one of its parent has a left child, the latter means that the
-      ;; selected lbst has a bigger key. If the stack is empty, it
-      ;; means that there is not next key, the cursor reached the end
-      ;; of the key space.
-      (if (not (lbst-null? (lbst-right lbst)))
-          ;; There is a right subtree of LBST, look for the lbst
-          ;; with the smallest key in that subtree.
-          (let loop ((stack (cons* (lbst-right lbst) lbst (lbst-stack lbst))))
-            (if (not (lbst-null? (lbst-left (car stack))))
-                ;; there is smaller key in the left side.
-                (loop (cons (lbst-left lbst) stack))
-                ;; (car stack) is the left-most lbst in the right
-                ;; subtree of LBST, in other words that is the next
-                ;; key compared to (lbst-key LBST).
-                (let ((next (car stack)))
-                  ;; save the stack
-                  (make-lbst* (lbst-key next)
-                              (lbst-value next)
-                              (lbst-size next)
-                              (lbst-left next)
-                              (lbst-right next)
-                              (cdr stack)))))
+      (if (lbst-null? (lbst-right lbst))
           (let loop ((lbst lbst)
                      (stack (lbst-stack lbst)))
             (if (null? stack)
-                ;; There is nothing in the stack, hence there is no
-                ;; next key
                 #f
-                (if (not (bytevector=? (lbst-key (lbst-left (car stack))) (lbst-key lbst)))
-                    ;; lbst is not the left child of (car stack), that is
-                    ;; lbst is bigger than every key inside lbst subtree,
-                    ;; let's backtrack
-                    (loop (car stack) (cdr stack))
-                    ;; lbst is the left child of (car stack), it means
-                    ;; that (lbst-key (car stack)) is immediate next
-                    ;; key
-                    (let ((next (car stack)))
-                      (make-lbst* (lbst-key next)
-                                  (lbst-value next)
-                                  (lbst-size next)
-                                  (lbst-left next)
-                                  (lbst-right next)
-                                  (cdr stack)))))))))
+                (let ((parent (car stack)))
+                  (if (bytevector=? (lbst-key (lbst-left parent)) (lbst-key lbst))
+                      (make-lbst* (lbst-key parent)
+                                  (lbst-value parent)
+                                  (lbst-size parent)
+                                  (lbst-left parent)
+                                  (lbst-right parent)
+                                  (cdr stack))
+                      (loop (car stack) (cdr stack))))))
+          (let loop ((lbst (lbst-right lbst))
+                     (stack (cons lbst (lbst-stack lbst))))
+            (if (lbst-null? (lbst-left lbst))
+                (make-lbst* (lbst-key lbst)
+                            (lbst-value lbst)
+                            (lbst-size lbst)
+                            (lbst-left lbst)
+                            (lbst-right lbst)
+                            stack)
+                (loop (lbst-left lbst) (cons lbst stack)))))))
 
   (define lbst-previous
     (lambda (lbst)
-      (if (not (lbst-null? (lbst-left lbst)))
-          ;; biggest key in the left subtree
-          (let loop ((stack (cons* (lbst-left lbst) lbst (lbst-stack lbst))))
-            (if (not (lbst-null? (lbst-right (car stack))))
-                ;; there is smaller key
-                (loop (cons (lbst-right lbst) stack))
-                (let ((previous (car stack)))
-                  ;; save the stack
-                  (make-lbst* (lbst-key previous)
-                              (lbst-value previous)
-                              (lbst-size previous)
-                              (lbst-left previous)
-                              (lbst-right previous)
-                              (cdr stack)))))
+      (if (lbst-null? (lbst-left lbst))
           (let loop ((lbst lbst)
                      (stack (lbst-stack lbst)))
             (if (null? stack)
-                ;; There is nothing in the stack, hence there is no
-                ;; previous key
                 #f
-                ;; TODO
-                (if (not (bytevector=? (lbst-key (lbst-right (car stack))) (lbst-key lbst)))
-                    (loop (car stack) (cdr stack))
-                    (let ((previous (car stack)))
-                      (make-lbst* (lbst-key previous)
-                                  (lbst-value previous)
-                                  (lbst-size previous)
-                                  (lbst-left previous)
-                                  (lbst-right previous)
-                                  (cdr stack)))))))))
+                (let ((parent (car stack)))
+                  (if (bytevector=? (lbst-key (lbst-right parent)) (lbst-key lbst))
+                      (make-lbst* (lbst-key parent)
+                                  (lbst-value parent)
+                                  (lbst-size parent)
+                                  (lbst-left parent)
+                                  (lbst-right parent)
+                                  (cdr stack))
+                      (loop (car stack) (cdr stack))))))
+          (let loop ((lbst (lbst-left lbst))
+                     (stack (cons lbst (lbst-stack lbst))))
+            (if (lbst-null? (lbst-right lbst))
+                (make-lbst* (lbst-key lbst)
+                            (lbst-value lbst)
+                            (lbst-size lbst)
+                            (lbst-left lbst)
+                            (lbst-right lbst)
+                            stack)
+                (loop (lbst-right lbst) (cons lbst stack)))))))
 
   (define lbst->alist
     (lambda (lbst)
@@ -505,6 +473,16 @@
              (lbst (lbst-set lbst #vu8(101) 101)))
         (assert (fx=? (lbst-value (lbst-end lbst)) 101)))))
 
+  ;; same as lbst->alist but we start from the first key until
+  ;; the end.
+  (define lbst->alist/reversed
+    (lambda (lbst)
+      (let loop ((lbst (lbst-start lbst))
+                 (out '()))
+        (if (not lbst)
+            out
+            (loop (lbst-next lbst) (cons (cons (lbst-key lbst) (lbst-value lbst)) out))))))
+
   (define check~lbst-008
     (lambda ()
       (let* ((lbst (make-lbst))
@@ -512,16 +490,6 @@
              (lbst (lbst-set lbst #vu8(13) 13))
              (lbst (lbst-set lbst #vu8(14) 14))
              (lbst (lbst-set lbst #vu8(101) 101)))
-
-        ;; same as lbst->alist but we start from the first key until
-        ;; the end.
-        (define lbst->alist/reversed
-          (lambda (lbst)
-            (let loop ((lbst (lbst-start lbst))
-                       (out '()))
-              (if (not lbst)
-                  out
-                  (loop (lbst-next lbst) (cons (cons (lbst-key lbst) (lbst-value lbst)) out))))))
 
         (assert (equal? (reverse (lbst->alist/reversed lbst)) (lbst->alist lbst))))))
 
@@ -599,5 +567,37 @@
         (let ((new (lbst-delete lbst #vu8(42))))
           (assert (equal? (lbst->alist new)
                           '((#vu8(13) . 13) (#vu8(14) . 14) (#vu8(101) . 101))))))))
+
+  (define bytevector<?
+    (lambda (a b)
+      (case (bytevector-compare a b)
+        (smaller #t)
+        (else #f))))
+
+  (define check~lbst-014
+    (lambda ()
+      (let loop ((lbst (make-lbst))
+                 (out '())
+                 (count 16))
+        (if (fxzero? count)
+            (begin
+              (assert (equal? (lbst->alist lbst) (sort (lambda (a b) (bytevector<? (car a) (car b))) out))))
+            (let ((key (make-bytevector 8))
+                  (value (random (expt 2 64))))
+              (bytevector-u64-set! key 0 value 'little)
+              (loop (lbst-set lbst key value) (cons (cons key value) out) (fx- count 1)))))))
+
+  (define check~lbst-015
+    (lambda ()
+      (let loop ((lbst (make-lbst))
+                 (out '())
+                 (count 16))
+        (if (fxzero? count)
+            (begin
+              (assert (equal? (lbst->alist/reversed lbst) (reverse (sort (lambda (a b) (bytevector<? (car a) (car b))) out)))))
+            (let ((key (make-bytevector 8))
+                  (value (random (expt 2 64))))
+              (bytevector-u64-set! key 0 value 'little)
+              (loop (lbst-set lbst key value) (cons (cons key value) out) (fx- count 1)))))))
 
   )
